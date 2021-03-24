@@ -1,79 +1,20 @@
-const chalk = require('chalk');
-const got = require('got')
-const jsdom = require("jsdom")
-const { JSDOM } = jsdom
-const { NodeHtmlMarkdown } = require('node-html-markdown')
-const axios = require('axios')
-var argv = require('minimist')(process.argv.slice(2))
-const html2markdown = new NodeHtmlMarkdown()
+#! /usr/bin/env node
+const { program } = require('commander')
+const config = require('./config')
+const run = require('./run')
 
-fastify.get('/toMarkdown/:url', function (req, res) {
-    got(req.params.url).then((response) => {
-        const dom = new JSDOM(response.body),
-            articleNode = dom.window.document.querySelector('article')
-        if (articleNode) {
-            const html = articleNode.html
-            let markdown = ""
-            if (html) {
-                markdown = html2markdown.translate(html)
-            }
-            //get title of article
-            let title = searchTitle(articleNode)
-            if (!title) {
-                title = ""
-            }
-            fastify.log.info(title)
-            const article = {
-                title,
-                published: false,
-                body_markdown: markdown
-            }
-            //send article to DEV.to
-            axios.post('https://dev.to/api/articles', 
-                {
-                    article
-                }, {
-                headers: {
-                    'api-key': process.env.DEV_TO_API_KEY
-                }
-            }).then ((devReponse) => {
-                res.send({success: true, message: 'Article added to drafts on DEV at ' + devReponse.data.url + '/edit'})
-            }).catch((err) => {
-                console.error(err.data)
-                res.send({success: false, message: 'An error ocurred'})
-            })
-        } else {
-            res.send({success: false, message: 'No articles found in the URL.'})
-        }
-    })
-    .catch((err) => fastify.log.error(err))
-})
+program.usage('[command] [options]')
 
-fastify.listen(port, (err, address) => {
-    if (err) {
-        fastify.log.error(err)
-        process.exit(1)
-    }
-    fastify.log.info(`listening on port ${port}`)
-})
+program
+    .command('run')
+    .description('Cross post a blog post')
+    .arguments('<url> [platforms...]')
+    .action(run)
 
-function searchTitle (node) {
-    console.log(node.tagName)
-    if (node.tagName === 'H1' || node.tagName === 'H2' || node.tagName === 'H3' || node.tagName === 'H4' || node.tagName === 'H5' || node.tagName === 'H6') {
-        console.log("innerText", node.textContent)
-        return node.textContent
-    }
+program
+    .command('config')
+    .description('Add configuration for a platform')
+    .arguments('<platform>')
+    .action(config)
 
-    if (node.childNodes.length) {
-        const childNodes = node.childNodes
-        for(let i = 0; i < childNodes.length; i++) {
-            const title = searchTitle(childNodes.item(i))
-            console.log("title", title)
-            if (title) {
-                return title
-            }
-        }
-    }
-
-    return null
-}
+program.parse()
