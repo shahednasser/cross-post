@@ -20,10 +20,10 @@
     "axios": "^0.21.1",
     "chalk": "^4.1.0",
     "clui": "^0.3.6",
+    "commander": "^7.2.0",
     "configstore": "^5.0.1",
     "got": "^11.8.2",
     "jsdom": "^16.5.1",
-    "minimist": "^1.2.5",
     "node-html-markdown": "^0.1.5"
   }
 }
