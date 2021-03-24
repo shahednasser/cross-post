@@ -1,14 +1,10 @@
-require('dotenv').config()
-const fastify = require('fastify')({
-    logger: true
-})
+const chalk = require('chalk');
 const got = require('got')
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
-const { NodeHtmlMarkdown, NodeHtmlMarkdownOptions } = require('node-html-markdown')
+const { NodeHtmlMarkdown } = require('node-html-markdown')
 const axios = require('axios')
-const port = process.env.PORT || 3000
-
+var argv = require('minimist')(process.argv.slice(2))
 const html2markdown = new NodeHtmlMarkdown()
 
 fastify.get('/toMarkdown/:url', function (req, res) {

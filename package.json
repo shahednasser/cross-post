@@ -1,5 +1,5 @@
 {
-  "name": "cross-post-blog",
+  "name": "cross-post",
   "version": "1.0.0",
   "description": "Cross post a blog to multiple websites",
   "main": "index.js",
@@ -18,10 +18,12 @@
   "homepage": "https://github.com/shahednasser/cross-post-blog#readme",
   "dependencies": {
     "axios": "^0.21.1",
-    "dotenv": "^8.2.0",
-    "fastify": "^3.14.0",
+    "chalk": "^4.1.0",
+    "clui": "^0.3.6",
+    "configstore": "^5.0.1",
     "got": "^11.8.2",
     "jsdom": "^16.5.1",
+    "minimist": "^1.2.5",
     "node-html-markdown": "^0.1.5"
   }
 }
