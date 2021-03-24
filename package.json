@@ -1,0 +1,27 @@
+{
+  "name": "cross-post-blog",
+  "version": "1.0.0",
+  "description": "Cross post a blog to multiple websites",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shahednasser/cross-post-blog.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shahednasser/cross-post-blog/issues"
+  },
+  "homepage": "https://github.com/shahednasser/cross-post-blog#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dotenv": "^8.2.0",
+    "fastify": "^3.14.0",
+    "got": "^11.8.2",
+    "jsdom": "^16.5.1",
+    "node-html-markdown": "^0.1.5"
+  }
+}
