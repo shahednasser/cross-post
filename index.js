@@ -1,20 +1,21 @@
 #! /usr/bin/env node
 const { program } = require('commander')
-const config = require('./config')
-const run = require('./run')
+const config = require('./src/commands/config')
+const run = require('./src/commands/run')
+const { allowedPlatforms } = require('./src/utils')
 
 program.usage('[command] [options]')
 
 program
-    .command('run')
+    .command('run <url>')
     .description('Cross post a blog post')
-    .arguments('<url> [platforms...]')
+    .option('-t, --title [title]', 'Title for the article')
+    .option('-p, --platforms [platforms...]', 'Platforms to post articles to. Allowed values are: ' + allowedPlatforms.join(", "))
     .action(run)
 
 program
-    .command('config')
-    .description('Add configuration for a platform')
-    .arguments('<platform>')
+    .command('config <platform>')
+    .description('Add configuration for a platform. Allowed values are: ' + allowedPlatforms.join(", "))
     .action(config)
 
 program.parse()
