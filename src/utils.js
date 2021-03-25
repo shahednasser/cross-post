@@ -1,5 +1,5 @@
 const chalk = require('chalk')
-const allowedPlatforms = ['dev', 'hashnode']
+const allowedPlatforms = ['dev', 'hashnode', 'medium']
 
 module.exports = {
     allowedPlatforms,

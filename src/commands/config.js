@@ -95,6 +95,42 @@ function config (platform) {
                 }
             })
             .catch ((err) => {
+                console.error(displayError('An error occurred, please try again later.'))
+            })
+            break;
+        case 'medium':
+            inquirer.prompt([
+                {
+                    name: 'integrationToken',
+                    message: displayInfo(`Enter ${platform} Integration Token`)
+                }
+            ])
+            .then ((value) => {
+                if (!value.hasOwnProperty('integrationToken')) {
+                    console.error(displayError('Integration token is required'))
+                }
+
+                //get user information
+                axios.get('https://api.medium.com/v1/me', {
+                    headers: {
+                        'Authorization': 'Bearer ' + value.integrationToken
+                    }
+                }).then((res) => {
+                    if (res.data.data.id) {
+                        value.authorId = res.data.data.id
+                    }
+
+                    configstore.set(platform, value)
+                    console.log(displaySuccess('Configuration saved successfully'))
+                }).catch((err) => {
+                    console.error(displayError('An error occurred, please try again later.'))
+                })
+
+                //store integration token
+                //configstore.set(platform, value)
+
+            })
+            .catch ((err) => {
                 console.error(err)
                 console.error(displayError('An error occurred, please try again later.'))
             })

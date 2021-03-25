@@ -48,7 +48,10 @@ function run (url, {title, platforms}) {
 
     loading.start()
     got(url).then((response) => {
-        const dom = new JSDOM(response.body),
+        const dom = new JSDOM(response.body, {
+                resources: 'usable',
+                includeNodeLocations: true
+            }),
             articleNode = dom.window.document.querySelector('article')
         if (articleNode) {
             const html = articleNode.innerHTML
@@ -58,18 +61,22 @@ function run (url, {title, platforms}) {
             }
             if (!title) {
                 //get title of article
-                title = searchTitle(articleNode)
+                title = search('title', articleNode)
                 if (!title) {
                     title = ""
                 }
             }
+            let image = search('image', articleNode)
             chosenPlatforms.forEach((platform) => {
                 switch (platform) {
                     case 'dev':
-                        postToDev(title, markdown, url)
+                        postToDev(title, markdown, url, image)
                         break
                     case 'hashnode':
-                        postToHashnode(title, markdown, url)
+                        postToHashnode(title, markdown, url, coverImageUrl)
+                        break;
+                    case 'medium':
+                        postToMedium(title, markdown, url)
                 }
             })
         } else {
@@ -84,37 +91,49 @@ function run (url, {title, platforms}) {
         loading.stop()
         console.error(displayError(err))
     })
+}
 
-    function searchTitle (node) {
-        if (node.tagName === 'H1' || node.tagName === 'H2' || node.tagName === 'H3' || node.tagName === 'H4' || node.tagName === 'H5' || node.tagName === 'H6') {
-            return node.textContent
-        }
-
-        if (node.childNodes.length) {
-            const childNodes = node.childNodes
-            for(let i = 0; i < childNodes.length; i++) {
-                const title = searchTitle(childNodes.item(i))
-                if (title) {
-                    return title
-                }
-            }
-        }
-
-        return null
+function checkIfShouldStopLoading () {
+    if (platformsPosted === chosenPlatforms.length) {
+        loading.stop()
     }
 }
 
-function postToDev (title, body_markdown, canonical_url) {
+function search (type, node) {
+    if ((type === 'title' && (node.tagName === 'H1' || node.tagName === 'H2' || node.tagName === 'H3' || 
+            node.tagName === 'H4' || node.tagName === 'H5' || node.tagName === 'H6')) || 
+        (type === "image" && node.tagName === 'IMG')) {
+        return type === 'title' ? node.textContent : node.getAttribute('src')
+    }
+
+    if (node.childNodes && node.childNodes.length) {
+        const childNodes = node.childNodes
+        for(let i = 0; i < childNodes.length; i++) {
+            const title = search(type, childNodes.item(i))
+            if (title) {
+                return title
+            }
+        }
+    }
+
+    return null
+}
+
+function postToDev (title, body_markdown, canonical_url, main_image) {
     loading.message(`Posting article to dev.to`)
+    const article = {
+        title,
+        published: false,
+        body_markdown,
+        canonical_url
+    }
+    if (main_image) {
+        article.main_image = main_image
+    }
     //send article to DEV.to
     axios.post('https://dev.to/api/articles', 
     {
-        article: {
-            title,
-            published: false,
-            body_markdown,
-            canonical_url
-        }
+        article
     },
     {
     headers: {
@@ -129,13 +148,20 @@ function postToDev (title, body_markdown, canonical_url) {
     }).catch((err) => {
         platformsPosted++
         checkIfShouldStopLoading()
-        console.error(
-            displayError('Error occured while cross posting to DEV: ' + err.response.data.error)
-        )
+        if (err.response) {
+            console.error(
+                displayError('Error occured while cross posting to DEV: ' + err.response.data.error)
+            )
+        } else {
+            console.error(
+                displayError('An error occurred, please try again later')
+            )
+            console.error(err)
+        }
     })
 }
 
-function postToHashnode (title, contentMarkdown, originalArticleURL) {
+function postToHashnode (title, contentMarkdown, originalArticleURL, coverImageUrl) {
     loading.message(`Posting article to Hashnode...`)
     const configData = configstore.get('hashnode')
     const data = {
@@ -149,6 +175,9 @@ function postToHashnode (title, contentMarkdown, originalArticleURL) {
         },
         publicationId: configData.publicationId,
         hideFromHashnodeFeed: true
+    }
+    if (coverImageUrl) {
+        data.input.coverImageUrl = coverImageUrl
     }
     axios.post('https://api.hashnode.com', {
         query: 'mutation createPublicationStory($input: CreateStoryInput!, $publicationId: String!){ createPublicationStory(input: $input, publicationId: $publicationId){ post { slug, publication { domain } } } }',
@@ -195,10 +224,41 @@ function postToHashnode (title, contentMarkdown, originalArticleURL) {
     })
 }
 
-function checkIfShouldStopLoading () {
-    if (platformsPosted === chosenPlatforms.length) {
-        loading.stop()
-    }
+function postToMedium (title, content, canonicalUrl) {
+    loading.message(`Posting article to Medium...`)
+    const mediumConfig = configstore.get('medium')
+    axios.post(`https://api.medium.com/v1/users/${mediumConfig.authorId}/posts`, {
+        title,
+        contentFormat: 'markdown',
+        content,
+        canonicalUrl,
+        publishStatus: 'draft'
+    }, {
+        headers: {
+            'Authorization': `Bearer ${mediumConfig.integrationToken}`
+        }
+    })
+    .then ((res) => {
+        platformsPosted++
+        checkIfShouldStopLoading()
+        console.log(
+            displaySuccess('Article added as draft on Medium at ' + res.data.data.url)
+        )
+    })
+    .catch ((res) => {
+        platformsPosted++
+        checkIfShouldStopLoading()
+
+        if (res.data) {
+            console.error(
+                displayError('Error occured while cross posting to Medium: ' + res.data)
+            )
+        } else {
+            console.error(
+                displayError('An error occurred, please try again later.')
+            )
+        }
+    })
 }
 
 module.exports = run
