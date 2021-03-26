@@ -33,7 +33,6 @@
   },
   "files": [
     "index.js",
-    "src",
-    "assets"
+    "src"
   ]
 }
