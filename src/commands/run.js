@@ -157,7 +157,8 @@ function postToDev (title, body_markdown, canonical_url, main_image) {
     const article = {
         title,
         published: false,
-        body_markdown
+        body_markdown,
+        canonical_url
     }
     if (main_image) {
         article.main_image = main_image
