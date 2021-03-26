@@ -1,6 +1,6 @@
 {
   "name": "cross-post-blog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Cross post a blog to multiple websites",
   "main": "index.js",
   "scripts": {
@@ -29,7 +29,7 @@
     "node-html-markdown": "^0.1.5"
   },
   "bin": {
-    "cross-post": "./index.js"
+    "cross-post": "index.js"
   },
   "files": [
     "index.js",
