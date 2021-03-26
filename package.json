@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shahednasser/cross-post-blog.git"
+    "url": "git+https://github.com/shahednasser/cross-post.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Shahed Nasser",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/shahednasser/cross-post-blog/issues"
+    "url": "https://github.com/shahednasser/cross-post/issues"
   },
-  "homepage": "https://github.com/shahednasser/cross-post-blog#readme",
+  "homepage": "https://github.com/shahednasser/cross-post#readme",
   "dependencies": {
     "axios": "^0.21.1",
     "canvas": "^2.7.0",
