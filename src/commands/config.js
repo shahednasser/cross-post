@@ -3,6 +3,11 @@ const Conf = require('conf')
 const { isPlatformAllowed, displayError, platformNotAllowedMessage, displayInfo, displaySuccess } = require('../utils')
 const { default: axios } = require('axios')
 
+
+/**
+ * 
+ * @param {string} platform Platform to set configuration
+ */
 function config (platform) {
     //check if platform is allowed
     if (!isPlatformAllowed) {
@@ -54,6 +59,7 @@ function config (platform) {
                 }
 
                 if (value.username) {
+                    //get the publication id of the user to use it for creating publications
                     axios.post('https://api.hashnode.com', {
                         query: `
                             query user($username: String!) {
@@ -110,7 +116,7 @@ function config (platform) {
                     console.error(displayError('Integration token is required'))
                 }
 
-                //get user information
+                //get user informations to get authorId
                 axios.get('https://api.medium.com/v1/me', {
                     headers: {
                         'Authorization': 'Bearer ' + value.integrationToken
@@ -125,10 +131,6 @@ function config (platform) {
                 }).catch((err) => {
                     console.error(displayError('An error occurred, please try again later.'))
                 })
-
-                //store integration token
-                //configstore.set(platform, value)
-
             })
             .catch ((err) => {
                 console.error(err)

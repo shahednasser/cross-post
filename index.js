@@ -11,6 +11,7 @@ program
     .description('Cross post a blog post')
     .option('-t, --title [title]', 'Title for the article')
     .option('-p, --platforms [platforms...]', 'Platforms to post articles to. Allowed values are: ' + allowedPlatforms.join(", "))
+    .option('-s, --selector', 'The selector to look for in the document in the URL supplied. By default, it will be article')
     .action(run)
 
 program

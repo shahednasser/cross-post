@@ -12,10 +12,16 @@ const { allowedPlatforms, displayError, displaySuccess, isPlatformAllowed, platf
 
 const configstore = new Conf(),
     loading = new Spinner('Processing URL...')
-let platformsPosted = 0,
-    chosenPlatforms = allowedPlatforms
 
-function run (url, {title, platforms}) {
+let platformsPosted = 0, //incremental count of platforms the article is posted on
+    chosenPlatforms = allowedPlatforms //the platforms chosen, defaults to all platforms
+
+/**
+ * 
+ * @param {string} url URL of the blog post
+ * @param {object} param1 The parameters from the command line
+ */
+function run (url, {title, platforms, selector}) {
 
     //check if all platforms chosen are correct
     if (platforms) {
@@ -23,11 +29,13 @@ function run (url, {title, platforms}) {
             return !isPlatformAllowed(platform)
         })
         if (error) {
+            //if some of the platforms are not correct, return
             console.error(
                 displayError(platformNotAllowedMessage)
             )
             return
         }
+        //set chosen platforms to platforms chosen
         chosenPlatforms = platforms
     }
 
@@ -46,19 +54,26 @@ function run (url, {title, platforms}) {
         return
     }
 
+    if (!selector) {
+        selector = 'article' //default value if no selector is supplied
+    }
+
+    //start loading
     loading.start()
     got(url).then((response) => {
         const dom = new JSDOM(response.body, {
                 resources: 'usable',
                 includeNodeLocations: true
             }),
-            articleNode = dom.window.document.querySelector('article')
+            articleNode = dom.window.document.querySelector(selector)
         if (articleNode) {
+            //if article element found, get its HTML content
             const html = articleNode.innerHTML
             let markdown = ""
             if (html) {
                 markdown = html2markdown.translate(html)
             }
+            //check if title is set in the command line arguments
             if (!title) {
                 //get title of article
                 title = search('title', articleNode)
@@ -66,6 +81,7 @@ function run (url, {title, platforms}) {
                     title = ""
                 }
             }
+            //Get cover image of the article
             let image = search('image', articleNode)
             chosenPlatforms.forEach((platform) => {
                 switch (platform) {
@@ -73,7 +89,7 @@ function run (url, {title, platforms}) {
                         postToDev(title, markdown, url, image)
                         break
                     case 'hashnode':
-                        postToHashnode(title, markdown, url, coverImageUrl)
+                        postToHashnode(title, markdown, url, image)
                         break;
                     case 'medium':
                         postToMedium(title, markdown, url)
@@ -93,12 +109,21 @@ function run (url, {title, platforms}) {
     })
 }
 
+/**
+ * If the number of platforms posted on is complete stop the loading
+ */
 function checkIfShouldStopLoading () {
     if (platformsPosted === chosenPlatforms.length) {
         loading.stop()
     }
 }
 
+/**
+ * 
+ * @param {string} type Type to search for. Can be either title or
+ * @param {HTMLElement} node element to search in
+ * @returns 
+ */
 function search (type, node) {
     if ((type === 'title' && (node.tagName === 'H1' || node.tagName === 'H2' || node.tagName === 'H3' || 
             node.tagName === 'H4' || node.tagName === 'H5' || node.tagName === 'H6')) || 
@@ -119,13 +144,20 @@ function search (type, node) {
     return null
 }
 
+/**
+ * Post article to dev.to 
+ * 
+ * @param {string} title Title of article
+ * @param {string} body_markdown Content of the article in markdown
+ * @param {string} canonical_url URL of original article
+ * @param {string} main_image Cover image URL
+ */
 function postToDev (title, body_markdown, canonical_url, main_image) {
     loading.message(`Posting article to dev.to`)
     const article = {
         title,
         published: false,
-        body_markdown,
-        canonical_url
+        body_markdown
     }
     if (main_image) {
         article.main_image = main_image
@@ -161,7 +193,15 @@ function postToDev (title, body_markdown, canonical_url, main_image) {
     })
 }
 
-function postToHashnode (title, contentMarkdown, originalArticleURL, coverImageUrl) {
+/**
+ * Post article to Hashnode
+ * 
+ * @param {string} title Title of article
+ * @param {string} contentMarkdown Content of article in Markdown
+ * @param {string} originalArticleURL URL of original article
+ * @param {string} coverImageURL URL of cover image
+ */
+function postToHashnode (title, contentMarkdown, originalArticleURL, coverImageURL) {
     loading.message(`Posting article to Hashnode...`)
     const configData = configstore.get('hashnode')
     const data = {
@@ -176,8 +216,8 @@ function postToHashnode (title, contentMarkdown, originalArticleURL, coverImageU
         publicationId: configData.publicationId,
         hideFromHashnodeFeed: true
     }
-    if (coverImageUrl) {
-        data.input.coverImageUrl = coverImageUrl
+    if (coverImageURL) {
+        data.input.coverImageURL = coverImageURL
     }
     axios.post('https://api.hashnode.com', {
         query: 'mutation createPublicationStory($input: CreateStoryInput!, $publicationId: String!){ createPublicationStory(input: $input, publicationId: $publicationId){ post { slug, publication { domain } } } }',
@@ -224,6 +264,13 @@ function postToHashnode (title, contentMarkdown, originalArticleURL, coverImageU
     })
 }
 
+/**
+ * Post article to Medium
+ * 
+ * @param {string} title Title of article
+ * @param {string} content Content of article in markdown
+ * @param {string} canonicalUrl URL of original article
+ */
 function postToMedium (title, content, canonicalUrl) {
     loading.message(`Posting article to Medium...`)
     const mediumConfig = configstore.get('medium')
