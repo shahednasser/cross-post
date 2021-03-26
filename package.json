@@ -1,5 +1,5 @@
 {
-  "name": "cross-post",
+  "name": "cross-post-blog",
   "version": "1.0.0",
   "description": "Cross post a blog to multiple websites",
   "main": "index.js",
@@ -30,5 +30,9 @@
   },
   "bin": {
     "cross-post": "./index.js"
-  }
+  },
+  "files": [
+    "index.js",
+    "src"
+  ]
 }

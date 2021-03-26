@@ -16,7 +16,7 @@ Easily cross post your article on dev.to, Hashnode and Medium from your terminal
 In your terminal:
 
 ```
-npm i -g cross-post
+npm i -g cross-post-blog
 ```
 
 ## Usage
