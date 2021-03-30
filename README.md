@@ -2,14 +2,15 @@
 
 Easily cross post your article on dev.to, Hashnode and Medium from your terminal.
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Set Configuration](#set-configuration)
+- [Cross Post](#cross-post)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Set Configuration](#set-configuration)
     - [dev.to](#devto)
     - [Hashnode](#hashnode)
     - [Medium](#medium)
-- [Cross Posting Your Articles](#cross-posting-your-articles)
-- [License](#license)
+    - [Cross Posting Your Articles](#cross-posting-your-articles)
+  - [License](#license)
 
 ## Installation
 
@@ -113,10 +114,9 @@ cross-post run <url> -p dev hashnode
 
 2. `-t, --title [title]` The title by default will be taken from the URL you supplied, however, if you want to use a different title you can supply it in this option.
 3. `-s, --selector [selector]` by default, the `article` selector will be used to find your article in the URL you pass as an argument. However, if you need a different selector to be used to find the article, you can pass it here.
+4. `-pu, --public` by default, the article will be posted as a draft (or hidden for hashnode due to the limitations of the Hashnode API). You can pass this option to post it publicly.
 
 This command will find the HTML element in the URL page you pass as an argument and if found, it will extract the title (if no title is passed in the arguments) and cover image.
-
-It should be noted that on all platforms the article will be posted as a draft, however, due to the limitations of the Hashnode API, it will be posted as "hidden from Hashnode" but it will be public in your publication. 
 
 ---
 
