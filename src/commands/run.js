@@ -21,7 +21,10 @@ let platformsPosted = 0, //incremental count of platforms the article is posted 
  * @param {string} url URL of the blog post
  * @param {object} param1 The parameters from the command line
  */
-function run (url, {title, platforms, selector}) {
+function run (url, {title, platforms, selector, public}) {
+    if (typeof public !== "boolean") {
+        public = false;
+    }
 
     //check if all platforms chosen are correct
     if (platforms) {
@@ -86,13 +89,13 @@ function run (url, {title, platforms, selector}) {
             chosenPlatforms.forEach((platform) => {
                 switch (platform) {
                     case 'dev':
-                        postToDev(title, markdown, url, image)
+                        postToDev(title, markdown, url, image, public)
                         break
                     case 'hashnode':
-                        postToHashnode(title, markdown, url, image)
+                        postToHashnode(title, markdown, url, image, public)
                         break;
                     case 'medium':
-                        postToMedium(title, markdown, url)
+                        postToMedium(title, markdown, url, public)
                 }
             })
         } else {
@@ -151,14 +154,14 @@ function search (type, node) {
  * @param {string} body_markdown Content of the article in markdown
  * @param {string} canonical_url URL of original article
  * @param {string} main_image Cover image URL
+ * @param {boolean} published whether to publish as draft or public
  */
-function postToDev (title, body_markdown, canonical_url, main_image) {
+function postToDev (title, body_markdown, canonical_url, main_image, published) {
     loading.message(`Posting article to dev.to`)
     const article = {
         title,
-        published: false,
-        body_markdown,
-        canonical_url
+        published,
+        body_markdown
     }
     if (main_image) {
         article.main_image = main_image
@@ -201,8 +204,9 @@ function postToDev (title, body_markdown, canonical_url, main_image) {
  * @param {string} contentMarkdown Content of article in Markdown
  * @param {string} originalArticleURL URL of original article
  * @param {string} coverImageURL URL of cover image
+ * @param {boolean} hideFromHashnodeFeed Whether to post it publically or not
  */
-function postToHashnode (title, contentMarkdown, originalArticleURL, coverImageURL) {
+function postToHashnode (title, contentMarkdown, originalArticleURL, coverImageURL, hideFromHashnodeFeed) {
     loading.message(`Posting article to Hashnode...`)
     const configData = configstore.get('hashnode')
     const data = {
@@ -215,7 +219,7 @@ function postToHashnode (title, contentMarkdown, originalArticleURL, coverImageU
             tags: []
         },
         publicationId: configData.publicationId,
-        hideFromHashnodeFeed: true
+        hideFromHashnodeFeed
     }
     if (coverImageURL) {
         data.input.coverImageURL = coverImageURL
@@ -271,8 +275,9 @@ function postToHashnode (title, contentMarkdown, originalArticleURL, coverImageU
  * @param {string} title Title of article
  * @param {string} content Content of article in markdown
  * @param {string} canonicalUrl URL of original article
+ * @param {boolean} public Whether to publish article publicly or not
  */
-function postToMedium (title, content, canonicalUrl) {
+function postToMedium (title, content, canonicalUrl, public) {
     loading.message(`Posting article to Medium...`)
     const mediumConfig = configstore.get('medium')
     axios.post(`https://api.medium.com/v1/users/${mediumConfig.authorId}/posts`, {
@@ -280,7 +285,7 @@ function postToMedium (title, content, canonicalUrl) {
         contentFormat: 'markdown',
         content,
         canonicalUrl,
-        publishStatus: 'draft'
+        publishStatus: public ? 'public' : 'draft'
     }, {
         headers: {
             'Authorization': `Bearer ${mediumConfig.integrationToken}`

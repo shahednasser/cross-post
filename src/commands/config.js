@@ -96,8 +96,7 @@ function config (platform) {
                         )
                     })
                 } else {
-                    configstore.set(platform, value)
-                    console.log(displaySuccess('Configuration saved successfully'))
+                    console.error(displayError('Username is required'))
                 }
             })
             .catch ((err) => {

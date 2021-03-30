@@ -12,6 +12,7 @@ program
     .option('-t, --title [title]', 'Title for the article')
     .option('-p, --platforms [platforms...]', 'Platforms to post articles to. Allowed values are: ' + allowedPlatforms.join(", "))
     .option('-s, --selector', 'The selector to look for in the document in the URL supplied. By default, it will be article')
+    .option('-pu, --public', 'Publish it publically instead of to drafts by default.')
     .action(run)
 
 program
