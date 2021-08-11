@@ -3,12 +3,14 @@ const got = require('got')
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
 const { NodeHtmlMarkdown } = require('node-html-markdown')
-const axios = require('axios')
 const html2markdown = new NodeHtmlMarkdown()
 const CLI = require('clui')
 const Spinner = CLI.Spinner
-const { allowedPlatforms, displayError, displaySuccess, isPlatformAllowed, platformNotAllowedMessage, displayInfo } = 
+const { allowedPlatforms, displayError, displaySuccess, isPlatformAllowed, platformNotAllowedMessage, isDataURL, imagePlatform } = 
     require('../utils')
+const postToDev = require('./platforms/dev')
+const postToHashnode = require('./platforms/hashnode')
+const postToMedium = require('./platforms/medium')
 
 const configstore = new Conf(),
     loading = new Spinner('Processing URL...')
@@ -21,7 +23,7 @@ let platformsPosted = 0, //incremental count of platforms the article is posted 
  * @param {string} url URL of the blog post
  * @param {object} param1 The parameters from the command line
  */
-function run (url, {title, platforms, selector, public}) {
+function run (url, {title, platforms, selector, public, ignoreImage}) {
     if (typeof public !== "boolean") {
         public = false;
     }
@@ -63,7 +65,7 @@ function run (url, {title, platforms, selector, public}) {
 
     //start loading
     loading.start()
-    got(url).then((response) => {
+    got(url).then(async (response) => {
         const dom = new JSDOM(response.body, {
                 resources: 'usable',
                 includeNodeLocations: true
@@ -84,32 +86,56 @@ function run (url, {title, platforms, selector, public}) {
                     title = ""
                 }
             }
-            //Get cover image of the article
-            let image = search('image', articleNode)
+            let image = null;
+            if (!ignoreImage) {
+                //Get cover image of the article
+                image = search('image', articleNode)
+                //check if image is dataurl
+                if (isDataURL(image)) {
+                    //TODO upload image to a temporary server to get URL
+                }
+            }
             chosenPlatforms.forEach((platform) => {
                 switch (platform) {
                     case 'dev':
-                        postToDev(title, markdown, url, image, public)
+                        loading.message(`Posting article to dev.to...`)
+                        postToDev(title, markdown, url, image, public, afterPost)
+                        .catch(handleError)
                         break
                     case 'hashnode':
-                        postToHashnode(title, markdown, url, image, public)
+                        loading.message(`Posting article to Hashnode...`)
+                        postToHashnode(title, markdown, url, image, public, afterPost)
+                        .catch(handleError)
                         break;
                     case 'medium':
-                        postToMedium(title, markdown, url, public)
+                        loading.message(`Posting article to Medium...`)
+                        postToMedium(title, markdown, url, public, afterPost)
+                        .catch(handleError)
                 }
             })
         } else {
-            loading.stop()
-            console.error(
-                displayError('No articles found in the URL.')
-            )
-            return
+            throw new Error('No articles found in the URL.')
         }
     })
-    .catch((err) => {
-        loading.stop()
-        console.error(displayError(err))
-    })
+    .catch(handleError)
+}
+
+function handleError(err) {
+    loading.stop()
+    console.error(displayError(err))
+}
+
+/**
+ * Function to run after posting on a platform is done
+ */
+function afterPost({success, url = '', platform = '', public = false}) {
+    if (success) {
+        console.log(
+            displaySuccess(`Article ${public ? 'published' : 'added to drafts'} on ${platform} at ${url}`)
+        )
+    }
+    platformsPosted++
+    checkIfShouldStopLoading()
 }
 
 /**
@@ -145,174 +171,6 @@ function search (type, node) {
     }
 
     return null
-}
-
-/**
- * Post article to dev.to 
- * 
- * @param {string} title Title of article
- * @param {string} body_markdown Content of the article in markdown
- * @param {string} canonical_url URL of original article
- * @param {string} main_image Cover image URL
- * @param {boolean} published whether to publish as draft or public
- */
-function postToDev (title, body_markdown, canonical_url, main_image, published) {
-    loading.message(`Posting article to dev.to`)
-    const article = {
-        title,
-        published,
-        body_markdown,
-        canonical_url
-    }
-    if (main_image) {
-        article.main_image = main_image
-    }
-    //send article to DEV.to
-    axios.post('https://dev.to/api/articles', 
-    {
-        article
-    },
-    {
-    headers: {
-        'api-key': configstore.get('dev').apiKey
-    }
-    }).then ((devReponse) => {
-        platformsPosted++
-        checkIfShouldStopLoading()
-        console.log(
-            displaySuccess('Article added to drafts on DEV at ' + devReponse.data.url + '/edit')
-        )
-    }).catch((err) => {
-        platformsPosted++
-        checkIfShouldStopLoading()
-        if (err.response) {
-            console.error(
-                displayError('Error occured while cross posting to DEV: ' + err.response.data.error)
-            )
-        } else {
-            console.error(
-                displayError('An error occurred, please try again later')
-            )
-            console.error(err)
-        }
-    })
-}
-
-/**
- * Post article to Hashnode
- * 
- * @param {string} title Title of article
- * @param {string} contentMarkdown Content of article in Markdown
- * @param {string} originalArticleURL URL of original article
- * @param {string} coverImageURL URL of cover image
- * @param {boolean} hideFromHashnodeFeed Whether to post it publically or not
- */
-function postToHashnode (title, contentMarkdown, originalArticleURL, coverImageURL, hideFromHashnodeFeed) {
-    loading.message(`Posting article to Hashnode...`)
-    const configData = configstore.get('hashnode')
-    const data = {
-        input: {
-            title,
-            contentMarkdown,
-            isRepublished: {
-                originalArticleURL
-            },
-            tags: []
-        },
-        publicationId: configData.publicationId,
-        hideFromHashnodeFeed
-    }
-    if (coverImageURL) {
-        data.input.coverImageURL = coverImageURL
-    }
-    axios.post('https://api.hashnode.com', {
-        query: 'mutation createPublicationStory($input: CreateStoryInput!, $publicationId: String!){ createPublicationStory(input: $input, publicationId: $publicationId){ post { slug, publication { domain } } } }',
-        variables: data
-    }, {
-        headers: {
-            'Authorization': configData.apiKey
-        }
-    })
-    .then ((res) => {
-        platformsPosted++
-        checkIfShouldStopLoading()
-        if (res.data.errors) {
-            platformsPosted++
-            checkIfShouldStopLoading()
-            console.error(
-                displayError('Error occured while cross posting to Hashnode: ' + res.data.errors[0].message)
-            )
-        } else {
-            const post = res.data.data.createPublicationStory.post,
-                postUrl = post.publication.domain + '/' + post.slug
-
-            platformsPosted++
-            checkIfShouldStopLoading()
-
-            console.log(
-                displaySuccess('Article added as hidden on Hashnode at ' + postUrl)
-            )
-        }
-    })
-    .catch((err) => {
-        platformsPosted++
-        checkIfShouldStopLoading()
-
-        if (err.response) {
-            console.error(
-                displayError('Error occured while cross posting to Hashnode: ' + err.response.data.errors[0].message)
-            )
-        } else {
-            console.error(
-                displayError('An error occurred, please try again later.')
-            )
-        }
-    })
-}
-
-/**
- * Post article to Medium
- * 
- * @param {string} title Title of article
- * @param {string} content Content of article in markdown
- * @param {string} canonicalUrl URL of original article
- * @param {boolean} public Whether to publish article publicly or not
- */
-function postToMedium (title, content, canonicalUrl, public) {
-    loading.message(`Posting article to Medium...`)
-    const mediumConfig = configstore.get('medium')
-    axios.post(`https://api.medium.com/v1/users/${mediumConfig.authorId}/posts`, {
-        title,
-        contentFormat: 'markdown',
-        content,
-        canonicalUrl,
-        publishStatus: public ? 'public' : 'draft'
-    }, {
-        headers: {
-            'Authorization': `Bearer ${mediumConfig.integrationToken}`
-        }
-    })
-    .then ((res) => {
-        platformsPosted++
-        checkIfShouldStopLoading()
-        console.log(
-            displaySuccess('Article added as draft on Medium at ' + res.data.data.url)
-        )
-    })
-    .catch ((res) => {
-        platformsPosted++
-        checkIfShouldStopLoading()
-
-        if (res.data) {
-            console.error(
-                displayError('Error occured while cross posting to Medium: ' + res.data)
-            )
-        } else {
-            console.error(
-                displayError('An error occurred, please try again later.')
-            )
-        }
-    })
 }
 
 module.exports = run

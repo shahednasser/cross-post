@@ -13,6 +13,7 @@ program
     .option('-p, --platforms [platforms...]', 'Platforms to post articles to. Allowed values are: ' + allowedPlatforms.join(", "))
     .option('-s, --selector', 'The selector to look for in the document in the URL supplied. By default, it will be article')
     .option('-pu, --public', 'Publish it publically instead of to drafts by default.')
+    .option('-i, --ignore-image', 'Ignore uploading image with the article. This helps mitigate errors when uploading images')
     .action(run)
 
 program

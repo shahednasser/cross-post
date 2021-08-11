@@ -10,7 +10,7 @@ const { default: axios } = require('axios')
  */
 function config (platform) {
     //check if platform is allowed
-    if (!isPlatformAllowed) {
+    if (!isPlatformAllowed(platform, true)) {
         console.error(
             displayError(platformNotAllowedMessage)
         )
@@ -130,6 +130,28 @@ function config (platform) {
                 }).catch((err) => {
                     console.error(displayError('An error occurred, please try again later.'))
                 })
+            })
+            .catch ((err) => {
+                console.error(err)
+                console.error(displayError('An error occurred, please try again later.'))
+            })
+            break;
+        case 'imgbb':
+            inquirer.prompt([
+                {
+                    name: 'apiKey',
+                    message: displayInfo(`Enter ${platform} API key`)
+                }
+            ])
+            .then ((value) => {
+                if (!value.hasOwnProperty('apiKey')) {
+                    console.error(displayError('API key is required'))
+                }
+
+                //store api key
+                configstore.set(platform, value)
+
+                console.log(displaySuccess('Configuration saved successfully'))
             })
             .catch ((err) => {
                 console.error(err)
