@@ -11,6 +11,7 @@ const { allowedPlatforms, displayError, displaySuccess, isPlatformAllowed, platf
 const postToDev = require('./platforms/dev')
 const postToHashnode = require('./platforms/hashnode')
 const postToMedium = require('./platforms/medium')
+const uploadToCloudinary = require('./platforms/cloudinary')
 
 const configstore = new Conf(),
     loading = new Spinner('Processing URL...')
@@ -23,7 +24,7 @@ let platformsPosted = 0, //incremental count of platforms the article is posted 
  * @param {string} url URL of the blog post
  * @param {object} param1 The parameters from the command line
  */
-function run (url, {title, platforms, selector, public, ignoreImage}) {
+function run (url, {title, platforms, selector, public, ignoreImage, imageSelector, imageUrl}) {
     if (typeof public !== "boolean") {
         public = false;
     }
@@ -60,7 +61,11 @@ function run (url, {title, platforms, selector, public, ignoreImage}) {
     }
 
     if (!selector) {
-        selector = 'article' //default value if no selector is supplied
+        //check if a default selector is set in the configurations
+        selector = configstore.get('selector')
+        if (!selector) {
+            selector = 'article' //default value if no selector is supplied
+        }
     }
 
     //start loading
@@ -88,11 +93,34 @@ function run (url, {title, platforms, selector, public, ignoreImage}) {
             }
             let image = null;
             if (!ignoreImage) {
-                //Get cover image of the article
-                image = search('image', articleNode)
-                //check if image is dataurl
-                if (isDataURL(image)) {
-                    //TODO upload image to a temporary server to get URL
+                if (imageUrl) {
+                    //use image url that is provided
+                    image = imageUrl;
+                } else {
+                    //Get cover image of the article
+                    if (imageSelector) {
+                        //get image using selector specified
+                        image = dom.window.document.querySelector(imageSelector)
+                        if (image) {
+                            image = image.getAttribute('src')
+                        }
+                    } else {
+                        //check if there's a default image selector in config
+                        imageSelector = configstore.get('imageSelector')
+                        if (imageSelector) {
+                            image = dom.window.document.querySelector(imageSelector)
+                            if (image) {
+                                image = image.getAttribute('src')
+                            }
+                        } else {
+                            image = search('image', articleNode)
+                        }
+                    }
+                    //check if image is dataurl
+                    if (image && isDataURL(image)) {
+                        const response = await uploadToCloudinary(image)
+                        image = response.url
+                    }
                 }
             }
             chosenPlatforms.forEach((platform) => {
@@ -141,7 +169,7 @@ function afterPost({success, url = '', platform = '', public = false}) {
 /**
  * If the number of platforms posted on is complete stop the loading
  */
-function checkIfShouldStopLoading () {
+async function checkIfShouldStopLoading () {
     if (platformsPosted === chosenPlatforms.length) {
         loading.stop()
     }

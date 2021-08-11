@@ -8,7 +8,8 @@ module.exports = {
     displayInfo: chalk.bold.blue,
     isPlatformAllowed: function (platform, config = false) {
         if (config) {
-            return allowedPlatforms.includes(platform) || module.exports.imagePlatform === platform
+            return allowedPlatforms.includes(platform) || module.exports.imagePlatform === platform || 
+                platform === 'imageSelector' || platform === 'selector'
         }
         return allowedPlatforms.includes(platform)
     },
@@ -17,5 +18,5 @@ module.exports = {
         const regex = /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/i;
         return !!s.match(regex);
     },
-    imagePlatform: 'imgbb'
+    imagePlatform: 'cloudinary'
 }

@@ -132,8 +132,55 @@ cross-post run <url> -p dev hashnode
 2. `-t, --title [title]` The title by default will be taken from the URL you supplied, however, if you want to use a different title you can supply it in this option.
 3. `-s, --selector [selector]` by default, the `article` selector will be used to find your article in the URL you pass as an argument. However, if you need a different selector to be used to find the article, you can pass it here.
 4. `-pu, --public` by default, the article will be posted as a draft (or hidden for hashnode due to the limitations of the Hashnode API). You can pass this option to post it publicly.
+5. `-i, --ignore-image` this will ignore uploading an image with the article. This helps avoid errors when an image cannot be fetched.
+6. `-is, --image-selector [imageSelector]` this will select the image from the page on the selector you provide, instead of the first image inside the article. This option overrides the default image selector in the configurations.
+7. `-iu, --image-url [imageUrl]` this will use the image URL you provide as a value of the option and will not look for any image inside the article.
 
 This command will find the HTML element in the URL page you pass as an argument and if found, it will extract the title (if no title is passed in the arguments) and cover image.
+
+#### Selector Configuration
+
+If you need this tool to always use the same selector for the article, you can set the default selector in the configuration using the following command:
+
+```bash
+cross-post config selector
+```
+
+Then, you'll be prompted to enter the selector you want. After you set the default selector, all subsequent `run` commands will use the same selector unless you override it using the option `--selector`.
+
+#### Image Selector Configuration
+
+If you need this tool to always use the same selector for the image, you can set the default image selector in the configuration using the following command:
+
+```bash
+cross-post config image-selector
+```
+
+Then, you'll be prompted to enter the image selector you want. After you set the default image selector, all subsequent `run` commands will use the same selector unless you override it using the option `--image-selector`.
+
+#### Uploading Data URI Article Images
+
+If your website's main article image is a [Data URL image](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs), uploading it as it is would lead to an error on most platforms. There are 3 ways to avoid that:
+
+##### Using a Cloudinary account
+
+In this method, you'll need to create or use an already created Cloudinary account and the tool will use the account to upload the image and get a URL.
+
+Follow the steps below:
+
+1. Create a [Cloudinary](https://cloudinary.com) account.
+2. Get the `cloud_name`, `api_key`, and `api_secret` from your account.
+3. Run `cross-post config cloudinary` and enter the information as prompted. **Remember that all keys are stored on your local machine**.
+
+That's it. Next time you run the `cross-post run` command, if the image is a Data URL image, it will be uploaded to Cloudinary to get a URL for it. You can delete the image once the article has been published publicly on the platforms.
+
+##### Pass Image URL
+
+You can pass an image URL as an option to `cross-post run` using `--image-url`.
+
+##### Post Article Without Image
+
+You can pass the option `--ignore-image` to `cross-post run` and the article will be published without an image.
 
 ---
 

@@ -1,6 +1,6 @@
 const inquirer = require('inquirer')
 const Conf = require('conf')
-const { isPlatformAllowed, displayError, platformNotAllowedMessage, displayInfo, displaySuccess } = require('../utils')
+const { isPlatformAllowed, displayError, platformNotAllowedMessage, displayInfo, displaySuccess, imagePlatform } = require('../utils')
 const { default: axios } = require('axios')
 
 
@@ -136,19 +136,35 @@ function config (platform) {
                 console.error(displayError('An error occurred, please try again later.'))
             })
             break;
-        case 'imgbb':
+        case imagePlatform:
             inquirer.prompt([
                 {
-                    name: 'apiKey',
-                    message: displayInfo(`Enter ${platform} API key`)
+                    name: 'cloud_name',
+                    message: displayInfo(`Enter cloud name`)
+                },
+                {
+                    name: 'api_key',
+                    message: displayInfo(`Enter API key`)
+                },
+                {
+                    name: 'api_secret',
+                    message: displayInfo(`Enter API secret`)
                 }
             ])
             .then ((value) => {
-                if (!value.hasOwnProperty('apiKey')) {
+                if (!value.hasOwnProperty('cloud_name')) {
+                    console.error(displayError('Cloud name is required'))
+                }
+
+                if (!value.hasOwnProperty('api_key')) {
                     console.error(displayError('API key is required'))
                 }
 
-                //store api key
+                if (!value.hasOwnProperty('api_secret')) {
+                    console.error(displayError('API secret is required'))
+                }
+
+                //store keys
                 configstore.set(platform, value)
 
                 console.log(displaySuccess('Configuration saved successfully'))
@@ -158,6 +174,49 @@ function config (platform) {
                 console.error(displayError('An error occurred, please try again later.'))
             })
             break;
+        case 'imageSelector':
+            inquirer.prompt([
+                {
+                    name: 'imageSelector',
+                    message: displayInfo(`Enter default image selector`)
+                }
+            ])
+            .then ((value) => {
+                if (!value.hasOwnProperty('imageSelector')) {
+                    console.error(displayError('Image selector is required'))
+                }
+
+                //store api key
+                configstore.set(platform, value.imageSelector)
+
+                console.log(displaySuccess('Configuration saved successfully'))
+            })
+            .catch ((err) => {
+                console.error(err)
+                console.error(displayError('An error occurred, please try again later.'))
+            })
+            break;
+        case 'selector':
+            inquirer.prompt([
+                {
+                    name: 'selector',
+                    message: displayInfo(`Enter default selector`)
+                }
+            ])
+            .then ((value) => {
+                if (!value.hasOwnProperty('selector')) {
+                    console.error(displayError('Selector is required'))
+                }
+
+                //store api key
+                configstore.set(platform, value.selector)
+
+                console.log(displaySuccess('Configuration saved successfully'))
+            })
+            .catch ((err) => {
+                console.error(err)
+                console.error(displayError('An error occurred, please try again later.'))
+            })
     }
 }
 
