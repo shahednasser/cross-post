@@ -12,6 +12,12 @@ Easily cross post your article on dev.to, Hashnode and Medium from your terminal
     - [Hashnode](#hashnode)
     - [Medium](#medium)
   - [Cross Posting Your Articles](#cross-posting-your-articles)
+  - [Selector Configuration](#selector-configuration)
+  - [Image Selector Configuration](#image-selector-configuration)
+  - [Uploading Data URI Article Images](#uploading-data-uri-article-images)
+    - [Using a Cloudinary account](#using-a-cloudinary-account)
+    - [Pass Image URL](#pass-image-url)
+    - [Post Article Without Image](#post-article-without-image)
 - [License](#license)
 
 ## Installation
