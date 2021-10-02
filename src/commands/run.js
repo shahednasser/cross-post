@@ -70,6 +70,7 @@ function run (url, {title, platforms, selector, public, ignoreImage, imageSelect
 
     //start loading
     loading.start()
+    //getting response 
     got(url).then(async (response) => {
         const dom = new JSDOM(response.body, {
                 resources: 'usable',
