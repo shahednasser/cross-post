@@ -18,7 +18,9 @@ function config (platform) {
     }
 
     const configstore = new Conf()
-
+    
+/*Setting environment for API key, Medium,Hahnode,ImageSelector,Selector,ImagePlatform*/
+    
     switch (platform) {
         case 'dev':
             inquirer.prompt([
