@@ -13,8 +13,6 @@ const uploadToCloudinary = require('./platforms/cloudinary')
 const configstore = new Conf(),
     loading = new Spinner('Processing URL...')
 
-let platformsPosted = 0 //incremental count of platforms the article is posted on
-
 async function sourceRemotePost(
     url,
     { title, platforms, selector, public, ignoreImage, imageSelector, imageUrl }
@@ -127,7 +125,7 @@ async function run(
     loading.start()
     return await sourceRemotePost(url, {
         title,
-        platforms: validatedPlatforms,
+        platforms,
         selector,
         public,
         ignoreImage,
