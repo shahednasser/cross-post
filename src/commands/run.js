@@ -7,21 +7,12 @@ const { NodeHtmlMarkdown } = require('node-html-markdown')
 const html2markdown = new NodeHtmlMarkdown()
 const CLI = require('clui')
 const Spinner = CLI.Spinner
-const {
-    displayError,
-    displaySuccess,
-    isDataURL,
-    validatePlatforms,
-} = require('../utils')
-const postToDev = require('./platforms/dev')
-const postToHashnode = require('./platforms/hashnode')
-const postToMedium = require('./platforms/medium')
+const { displayError, isDataURL, validatePlatforms } = require('../utils')
+const publish = require('../commands/platforms/publish.js')
 const uploadToCloudinary = require('./platforms/cloudinary')
 
 const configstore = new Conf(),
     loading = new Spinner('Processing URL...')
-
-let platformsPosted = 0 //incremental count of platforms the article is posted on
 
 /**
  * Retrieve markdown directly from a local file
@@ -32,13 +23,19 @@ async function sourceMarkdownFile(path) {
     try {
         const data = await fs.readFile(path)
         const markdown = data.toString()
-        publish(['medium'], {
-            title: 'test',
-            markdown,
-            url: 'https://test.com',
-            image: '',
-            public: false,
-        })
+        publish(
+            ['medium'],
+            {
+                title: 'test',
+                markdown,
+                url: 'https://test.com',
+                image: '',
+                public: false,
+            },
+            (message) => loading.message(message),
+            () => loading.stop(),
+            handleError
+        )
     } catch (error) {
         console.error(error)
         displayError(
@@ -108,13 +105,19 @@ async function sourceRemotePost(
                         }
                     }
                 }
-                publish(chosenPlatforms, {
-                    title,
-                    markdown,
-                    url,
-                    image,
-                    public,
-                })
+                publish(
+                    chosenPlatforms,
+                    {
+                        title,
+                        markdown,
+                        url,
+                        image,
+                        public,
+                    },
+                    (message) => loading.message(message),
+                    () => loading.stop(),
+                    handleError
+                )
             } else {
                 throw new Error('No articles found in the URL.')
             }
@@ -122,54 +125,6 @@ async function sourceRemotePost(
         .catch(handleError)
 }
 
-async function publish(
-    chosenPlatforms,
-    { title, markdown, url, image, public }
-) {
-    /**
-     * Function to run after posting on a platform is done
-     */
-    function afterPost({ success, url = '', platform = '', public = false }) {
-        if (success) {
-            console.log(
-                displaySuccess(
-                    `Article ${
-                        public ? 'published' : 'added to drafts'
-                    } on ${platform} at ${url}`
-                )
-            )
-        }
-        platformsPosted++
-        checkIfShouldStopLoading(chosenPlatforms)
-    }
-
-    chosenPlatforms.forEach((platform) => {
-        switch (platform) {
-            case 'dev':
-                loading.message(`Posting article to dev.to...`)
-                postToDev(title, markdown, url, image, public, afterPost).catch(
-                    handleError
-                )
-                break
-            case 'hashnode':
-                loading.message(`Posting article to Hashnode...`)
-                postToHashnode(
-                    title,
-                    markdown,
-                    url,
-                    image,
-                    public,
-                    afterPost
-                ).catch(handleError)
-                break
-            case 'medium':
-                loading.message(`Posting article to Medium...`)
-                postToMedium(title, markdown, url, public, afterPost).catch(
-                    handleError
-                )
-        }
-    })
-}
 /**
  *
  * @param {string} url URL of the blog post
@@ -226,15 +181,6 @@ async function run(
 function handleError(err) {
     loading.stop()
     console.error(displayError(err))
-}
-
-/**
- * If the number of platforms posted on is complete stop the loading
- */
-async function checkIfShouldStopLoading(chosenPlatforms) {
-    if (platformsPosted === chosenPlatforms.length) {
-        loading.stop()
-    }
 }
 
 /**
