@@ -2,6 +2,7 @@
 const { program } = require('commander')
 const config = require('./src/commands/config')
 const run = require('./src/commands/run')
+const run_local = require('./src/commands/run_local')
 const { allowedPlatforms } = require('./src/utils')
 
 program.usage('[command] [options]')
@@ -38,6 +39,22 @@ program
     )
     .option('--local-markdown', 'Enable local mode')
     .action(run)
+
+program
+    .command('run_local <path>')
+    .description('Cross post a blog post from a local markdown fiel')
+    .option('-t, --title [title]', 'Title for the article')
+    .option('-url --url [url]', 'Canonical URl')
+    .option(
+        '-p, --platforms [platforms...]',
+        'Platforms to post articles to. Allowed values are: ' +
+            allowedPlatforms.join(', ')
+    )
+    .option(
+        '-pu, --public',
+        'Publish it publically instead of to drafts by default.'
+    )
+    .action(run_local)
 
 program
     .command('config <platform>')

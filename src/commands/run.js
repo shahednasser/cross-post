@@ -1,5 +1,4 @@
 const Conf = require('conf')
-const fs = require('fs').promises
 const got = require('got')
 const jsdom = require('jsdom')
 const { JSDOM } = jsdom
@@ -14,35 +13,6 @@ const uploadToCloudinary = require('./platforms/cloudinary')
 const configstore = new Conf(),
     loading = new Spinner('Processing URL...')
 
-/**
- * Retrieve markdown directly from a local file
- *
- * @param {string} the path to the markdown file
- */
-async function sourceMarkdownFile(path) {
-    try {
-        const data = await fs.readFile(path)
-        const markdown = data.toString()
-        publish(
-            ['medium'],
-            {
-                title: 'test',
-                markdown,
-                url: 'https://test.com',
-                image: '',
-                public: false,
-            },
-            (message) => loading.message(message),
-            () => loading.stop(),
-            handleError
-        )
-    } catch (error) {
-        console.error(error)
-        displayError(
-            `The following error was raised while trygin to read ${path}: ${path}`
-        )
-    }
-}
 async function sourceRemotePost(
     url,
     { title, platforms, selector, public, ignoreImage, imageSelector, imageUrl }
@@ -132,16 +102,7 @@ async function sourceRemotePost(
  */
 async function run(
     url,
-    {
-        title,
-        platforms,
-        selector,
-        public,
-        ignoreImage,
-        imageSelector,
-        imageUrl,
-        localMarkdown = false,
-    }
+    { title, platforms, selector, public, ignoreImage, imageSelector, imageUrl }
 ) {
     if (typeof public !== 'boolean') {
         public = false
@@ -161,21 +122,15 @@ async function run(
     }
 
     //start loading
-    loading.start()
-    if (localMarkdown) {
-        console.log('yes')
-        return await sourceMarkdownFile(url)
-    } else {
-        return await sourceRemotePost(url, {
-            title,
-            platforms,
-            selector,
-            public,
-            ignoreImage,
-            imageSelector,
-            imageUrl,
-        })
-    }
+    return await sourceRemotePost(url, {
+        title,
+        platforms,
+        selector,
+        public,
+        ignoreImage,
+        imageSelector,
+        imageUrl,
+    })
 }
 
 function handleError(err) {
