@@ -36,6 +36,7 @@ program
         '-iu, --image-url [imageUrl]',
         "URL of image to use for the article's main image."
     )
+    .option('--local-markdown', 'Enable local mode')
     .action(run)
 
 program

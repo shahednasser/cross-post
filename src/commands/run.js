@@ -169,7 +169,16 @@ async function publish(
  */
 async function run(
     url,
-    { title, platforms, selector, public, ignoreImage, imageSelector, imageUrl }
+    {
+        title,
+        platforms,
+        selector,
+        public,
+        ignoreImage,
+        imageSelector,
+        imageUrl,
+        localMarkdown = false,
+    }
 ) {
     if (typeof public !== 'boolean') {
         public = false
@@ -216,7 +225,20 @@ async function run(
 
     //start loading
     loading.start()
-    sourceRemotePost(url, selector)
+    if (localMarkdown) {
+        console.log('yes')
+        return await sourceMarkdownFile(url)
+    } else {
+        return await sourceRemotePost(url, {
+            title,
+            platforms,
+            selector,
+            public,
+            ignoreImage,
+            imageSelector,
+            imageUrl,
+        })
+    }
 }
 
 function handleError(err) {
