@@ -31,7 +31,7 @@ let platformsPosted = 0, //incremental count of platforms the article is posted 
  * @param {string} url URL of the blog post
  * @param {object} param1 The parameters from the command line
  */
-function run(
+async function run(
     url,
     { title, platforms, selector, public, ignoreImage, imageSelector, imageUrl }
 ) {
