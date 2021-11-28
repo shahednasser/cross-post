@@ -138,40 +138,13 @@ async function run(
                         }
                     }
                 }
-                chosenPlatforms.forEach((platform) => {
-                    switch (platform) {
-                        case 'dev':
-                            loading.message(`Posting article to dev.to...`)
-                            postToDev(
-                                title,
-                                markdown,
-                                url,
-                                image,
-                                public,
-                                afterPost
-                            ).catch(handleError)
-                            break
-                        case 'hashnode':
-                            loading.message(`Posting article to Hashnode...`)
-                            postToHashnode(
-                                title,
-                                markdown,
-                                url,
-                                image,
-                                public,
-                                afterPost
-                            ).catch(handleError)
-                            break
-                        case 'medium':
-                            loading.message(`Posting article to Medium...`)
-                            postToMedium(
-                                title,
-                                markdown,
-                                url,
-                                public,
-                                afterPost
-                            ).catch(handleError)
-                    }
+                publish(chosenPlatforms, {
+                    title,
+                    markdown,
+                    url,
+                    image,
+                    public,
+                    afterPost,
                 })
             } else {
                 throw new Error('No articles found in the URL.')
@@ -180,6 +153,37 @@ async function run(
         .catch(handleError)
 }
 
+async function publish(
+    chosenPlatforms,
+    { title, markdown, url, image, public, afterPost }
+) {
+    chosenPlatforms.forEach((platform) => {
+        switch (platform) {
+            case 'dev':
+                loading.message(`Posting article to dev.to...`)
+                postToDev(title, markdown, url, image, public, afterPost).catch(
+                    handleError
+                )
+                break
+            case 'hashnode':
+                loading.message(`Posting article to Hashnode...`)
+                postToHashnode(
+                    title,
+                    markdown,
+                    url,
+                    image,
+                    public,
+                    afterPost
+                ).catch(handleError)
+                break
+            case 'medium':
+                loading.message(`Posting article to Medium...`)
+                postToMedium(title, markdown, url, public, afterPost).catch(
+                    handleError
+                )
+        }
+    })
+}
 function handleError(err) {
     loading.stop()
     console.error(displayError(err))
