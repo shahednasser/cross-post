@@ -26,60 +26,10 @@ const configstore = new Conf(),
 let platformsPosted = 0, //incremental count of platforms the article is posted on
     chosenPlatforms = allowedPlatforms //the platforms chosen, defaults to all platforms
 
-/**
- *
- * @param {string} url URL of the blog post
- * @param {object} param1 The parameters from the command line
- */
-async function run(
+async function sourceRemotePost(
     url,
     { title, platforms, selector, public, ignoreImage, imageSelector, imageUrl }
 ) {
-    if (typeof public !== 'boolean') {
-        public = false
-    }
-
-    //check if all platforms chosen are correct
-    if (platforms) {
-        const error = platforms.some((platform) => {
-            return !isPlatformAllowed(platform)
-        })
-        if (error) {
-            //if some of the platforms are not correct, return
-            console.error(displayError(platformNotAllowedMessage))
-            return
-        }
-        //set chosen platforms to platforms chosen
-        chosenPlatforms = platforms
-    }
-
-    //check if configurations exist for the platforms
-    const errorPlatform = chosenPlatforms.find((platform) => {
-        if (!configstore.get(platform)) {
-            return true
-        }
-        return false
-    })
-
-    if (errorPlatform) {
-        console.error(
-            displayError(
-                `Please set the configurations required for ${errorPlatform}`
-            )
-        )
-        return
-    }
-
-    if (!selector) {
-        //check if a default selector is set in the configurations
-        selector = configstore.get('selector')
-        if (!selector) {
-            selector = 'article' //default value if no selector is supplied
-        }
-    }
-
-    //start loading
-    loading.start()
     got(url)
         .then(async (response) => {
             const dom = new JSDOM(response.body, {
@@ -184,6 +134,63 @@ async function publish(
         }
     })
 }
+/**
+ *
+ * @param {string} url URL of the blog post
+ * @param {object} param1 The parameters from the command line
+ */
+async function run(
+    url,
+    { title, platforms, selector, public, ignoreImage, imageSelector, imageUrl }
+) {
+    if (typeof public !== 'boolean') {
+        public = false
+    }
+
+    //check if all platforms chosen are correct
+    if (platforms) {
+        const error = platforms.some((platform) => {
+            return !isPlatformAllowed(platform)
+        })
+        if (error) {
+            //if some of the platforms are not correct, return
+            console.error(displayError(platformNotAllowedMessage))
+            return
+        }
+        //set chosen platforms to platforms chosen
+        chosenPlatforms = platforms
+    }
+
+    //check if configurations exist for the platforms
+    const errorPlatform = chosenPlatforms.find((platform) => {
+        if (!configstore.get(platform)) {
+            return true
+        }
+        return false
+    })
+
+    if (errorPlatform) {
+        console.error(
+            displayError(
+                `Please set the configurations required for ${errorPlatform}`
+            )
+        )
+        return
+    }
+
+    if (!selector) {
+        //check if a default selector is set in the configurations
+        selector = configstore.get('selector')
+        if (!selector) {
+            selector = 'article' //default value if no selector is supplied
+        }
+    }
+
+    //start loading
+    loading.start()
+    sourceRemotePost(url, selector)
+}
+
 function handleError(err) {
     loading.stop()
     console.error(displayError(err))
