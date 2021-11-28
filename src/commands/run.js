@@ -1,4 +1,5 @@
 const Conf = require('conf')
+const fs = require('fs').promises
 const got = require('got')
 const jsdom = require('jsdom')
 const { JSDOM } = jsdom
@@ -26,6 +27,33 @@ const configstore = new Conf(),
 let platformsPosted = 0, //incremental count of platforms the article is posted on
     chosenPlatforms = allowedPlatforms //the platforms chosen, defaults to all platforms
 
+/**
+ * Retrieve markdown directly from a local file
+ *
+ * @param {string} the path to the markdown file
+ */
+async function sourceMarkdownFile(path) {
+    try {
+        const data = await fs.readFile(path)
+        console.log(path)
+        console.log(data)
+        const markdown = data.toString()
+        console.log(markdown)
+        publish(['medium'], {
+            title: 'test',
+            markdown,
+            url: 'test.com',
+            image: '',
+            public: false,
+            afterPost: () => undefined,
+        })
+    } catch (error) {
+        console.error(error)
+        displayError(
+            `The following error was raised while trygin to read ${path}: ${path}`
+        )
+    }
+}
 async function sourceRemotePost(
     url,
     { title, platforms, selector, public, ignoreImage, imageSelector, imageUrl }
