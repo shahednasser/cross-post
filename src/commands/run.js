@@ -7,13 +7,10 @@ const html2markdown = new NodeHtmlMarkdown()
 const CLI = require('clui')
 const Spinner = CLI.Spinner
 const {
-    allowedPlatforms,
     displayError,
     displaySuccess,
-    isPlatformAllowed,
-    platformNotAllowedMessage,
     isDataURL,
-    imagePlatform,
+    validatePlatforms,
 } = require('../utils')
 const postToDev = require('./platforms/dev')
 const postToHashnode = require('./platforms/hashnode')
@@ -23,8 +20,7 @@ const uploadToCloudinary = require('./platforms/cloudinary')
 const configstore = new Conf(),
     loading = new Spinner('Processing URL...')
 
-let platformsPosted = 0, //incremental count of platforms the article is posted on
-    chosenPlatforms = allowedPlatforms //the platforms chosen, defaults to all platforms
+let platformsPosted = 0 //incremental count of platforms the article is posted on
 
 async function sourceRemotePost(
     url,
@@ -94,7 +90,6 @@ async function sourceRemotePost(
                     url,
                     image,
                     public,
-                    afterPost,
                 })
             } else {
                 throw new Error('No articles found in the URL.')
@@ -105,8 +100,25 @@ async function sourceRemotePost(
 
 async function publish(
     chosenPlatforms,
-    { title, markdown, url, image, public, afterPost }
+    { title, markdown, url, image, public }
 ) {
+    /**
+     * Function to run after posting on a platform is done
+     */
+    function afterPost({ success, url = '', platform = '', public = false }) {
+        if (success) {
+            console.log(
+                displaySuccess(
+                    `Article ${
+                        public ? 'published' : 'added to drafts'
+                    } on ${platform} at ${url}`
+                )
+            )
+        }
+        platformsPosted++
+        checkIfShouldStopLoading(chosenPlatforms)
+    }
+
     chosenPlatforms.forEach((platform) => {
         switch (platform) {
             case 'dev':
@@ -147,34 +159,8 @@ async function run(
         public = false
     }
 
-    //check if all platforms chosen are correct
-    if (platforms) {
-        const error = platforms.some((platform) => {
-            return !isPlatformAllowed(platform)
-        })
-        if (error) {
-            //if some of the platforms are not correct, return
-            console.error(displayError(platformNotAllowedMessage))
-            return
-        }
-        //set chosen platforms to platforms chosen
-        chosenPlatforms = platforms
-    }
-
-    //check if configurations exist for the platforms
-    const errorPlatform = chosenPlatforms.find((platform) => {
-        if (!configstore.get(platform)) {
-            return true
-        }
-        return false
-    })
-
-    if (errorPlatform) {
-        console.error(
-            displayError(
-                `Please set the configurations required for ${errorPlatform}`
-            )
-        )
+    const validatedPlatforms = validatePlatforms(platforms)
+    if (!validatedPlatforms) {
         return
     }
 
@@ -190,7 +176,7 @@ async function run(
     loading.start()
     return await sourceRemotePost(url, {
         title,
-        platforms,
+        platforms: validatedPlatforms,
         selector,
         public,
         ignoreImage,
@@ -205,26 +191,9 @@ function handleError(err) {
 }
 
 /**
- * Function to run after posting on a platform is done
- */
-function afterPost({ success, url = '', platform = '', public = false }) {
-    if (success) {
-        console.log(
-            displaySuccess(
-                `Article ${
-                    public ? 'published' : 'added to drafts'
-                } on ${platform} at ${url}`
-            )
-        )
-    }
-    platformsPosted++
-    checkIfShouldStopLoading()
-}
-
-/**
  * If the number of platforms posted on is complete stop the loading
  */
-async function checkIfShouldStopLoading() {
+async function checkIfShouldStopLoading(chosenPlatforms) {
     if (platformsPosted === chosenPlatforms.length) {
         loading.stop()
     }
