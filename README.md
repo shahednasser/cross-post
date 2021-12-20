@@ -1,5 +1,7 @@
 # Cross Post
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/shahednasser)
+
 Easily cross post your article on dev.to, Hashnode and Medium from your terminal.
 
 - [Installation](#installation)
