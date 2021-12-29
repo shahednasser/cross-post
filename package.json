@@ -29,7 +29,8 @@
     "image-data-uri": "^2.0.1",
     "inquirer": "^8.0.0",
     "jsdom": "^16.5.1",
-    "node-html-markdown": "^0.1.5"
+    "node-html-markdown": "^0.1.5",
+    "turndown": "^7.1.1"
   },
   "bin": {
     "cross-post": "index.js"
