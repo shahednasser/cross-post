@@ -1,26 +1,33 @@
 # Cross Post
 
+This is my version of [cross-post](https://github.com/shahednasser/cross-post)_which uses a different html to markdown module to parse the given url. I was having problems with code blocks that there were showing up with missing wrappers thus not being formatted to an actual code block in dev.to or hasnode.
+
+Another change is to remove a custom div which contains my `copy to clipboard` button on the code blocks. I am removing it since other platforms don't need that. If you are using `gatsby-remark-prismjs-title` plugin you are going to need that anyway.
+
+---
+
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/shahednasser)
 
 Easily cross post your article on dev.to, Hashnode and Medium from your terminal.
 
-- [Installation](#installation)
-  - [Installation of MacOS with M1 chip](#installation-of-macos-with-m1-chip)
-    - [Method 1: Rosetta Terminal](#method-1-rosetta-terminal)
-    - [Method 2](#method-2)
-- [Usage](#usage)
-  - [Set Configuration](#set-configuration)
+- [Cross Post](#cross-post)
+  - [Installation](#installation)
+    - [Installation of MacOS with M1 chip](#installation-of-macos-with-m1-chip)
+      - [Method 1: Rosetta Terminal](#method-1-rosetta-terminal)
+      - [Method 2](#method-2)
+  - [Usage](#usage)
+    - [Set Configuration](#set-configuration)
     - [dev.to](#devto)
     - [Hashnode](#hashnode)
     - [Medium](#medium)
-  - [Cross Posting Your Articles](#cross-posting-your-articles)
-  - [Selector Configuration](#selector-configuration)
-  - [Image Selector Configuration](#image-selector-configuration)
-  - [Uploading Data URI Article Images](#uploading-data-uri-article-images)
-    - [Using a Cloudinary account](#using-a-cloudinary-account)
-    - [Pass Image URL](#pass-image-url)
-    - [Post Article Without Image](#post-article-without-image)
-- [License](#license)
+    - [Cross Posting Your Articles](#cross-posting-your-articles)
+      - [Selector Configuration](#selector-configuration)
+      - [Image Selector Configuration](#image-selector-configuration)
+      - [Uploading Data URI Article Images](#uploading-data-uri-article-images)
+        - [Using a Cloudinary account](#using-a-cloudinary-account)
+        - [Pass Image URL](#pass-image-url)
+        - [Post Article Without Image](#post-article-without-image)
+  - [License](#license)
 
 ## Installation
 
