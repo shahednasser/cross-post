@@ -32,6 +32,8 @@ npm i -g cross-post-blog
 
 ### Installation of MacOS with M1 chip
 
+For Apple M1, it's best to have Node v14.
+
 There are two ways to install this package on a MacOS with M1 chip:
 
 #### Method 1: Rosetta Terminal
@@ -44,6 +46,12 @@ There are two ways to install this package on a MacOS with M1 chip:
 
 1. In the terminal run: arch -arm64 brew install pkg-config cairo pango libpng jpeg giflib librsvg
 2. Try installing this package again.
+
+You might also need to add the following to `~/.zshrc`:
+
+```
+export PKG_CONFIG_PATH="/opt/homebrew/Cellar:/opt/homebrew/lib/pkgconfig:/opt/homebrew/share/pkgconfig"
+```
 
 ## Usage
 
