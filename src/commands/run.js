@@ -187,7 +187,7 @@ async function run(url, options) {
       articleContent = marked.parse(markdown);
     } else {
       // publish from the web
-      articleContent = (await got(url)).body;
+      articleContent = (await got(url, { rejectUnauthorized: false })).body;
     }
   } catch (e) {
     handleError(e);
