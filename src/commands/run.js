@@ -7,11 +7,11 @@ const jsdom = require('jsdom');
 const { marked } = require('marked');
 
 const { JSDOM } = jsdom;
-const { NodeHtmlMarkdown } = require('node-html-markdown');
 
-const html2markdown = new NodeHtmlMarkdown();
+const TurndownService = require('turndown');
 const CLI = require('clui');
 
+const turndownService = new TurndownService();
 const { Spinner } = CLI;
 const {
   allowedPlatforms,
@@ -203,7 +203,7 @@ async function run(url, options) {
     // if article element found, get its HTML content
     const html = articleNode.innerHTML;
     if (!markdown.length && html) {
-      markdown = html2markdown.translate(html);
+      markdown = turndownService.turndown(html);
     }
     // check if title is set in the command line arguments
     if (!title) {
