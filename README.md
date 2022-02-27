@@ -14,6 +14,7 @@ Easily cross post your article on dev.to, Hashnode and Medium from your terminal
     - [Hashnode](#hashnode)
     - [Medium](#medium)
   - [Cross Posting Your Articles](#cross-posting-your-articles)
+    - [Cross Posting Local Markdown Files](#cross-posting-local-markdown-files)
   - [Selector Configuration](#selector-configuration)
   - [Image Selector Configuration](#image-selector-configuration)
   - [Uploading Data URI Article Images](#uploading-data-uri-article-images)
@@ -141,7 +142,7 @@ Where `url` is the URL of your article that you want to cross post. `options` ca
 
 1. `-p, --platforms [platforms...]` The platform(s) you want to post the article on. By default if this option is not included, it will be posted on all the platforms. An example of its usage:
 
-```
+```bash
 cross-post run <url> -p dev hashnode
 ```
 
@@ -153,6 +154,18 @@ cross-post run <url> -p dev hashnode
 7. `-iu, --image-url [imageUrl]` this will use the image URL you provide as a value of the option and will not look for any image inside the article.
 
 This command will find the HTML element in the URL page you pass as an argument and if found, it will extract the title (if no title is passed in the arguments) and cover image.
+
+#### Cross Posting Local Markdown Files
+
+Starting from version 1.2.3, you can now post local markdown files to the platforms. Instead of passing a URL, pass the path to the file with the option `-l` or `--local`.
+
+For example:
+
+```bash
+cross-post run /path/to/test.md -l
+```
+
+You can also use any of the previous options mentioned.
 
 #### Selector Configuration
 

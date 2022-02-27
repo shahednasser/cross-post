@@ -29,6 +29,7 @@
     "image-data-uri": "^2.0.1",
     "inquirer": "^8.2.0",
     "jsdom": "^16.5.1",
+    "marked": "^4.0.12",
     "node-html-markdown": "^0.1.5"
   },
   "bin": {
@@ -37,5 +38,10 @@
   "files": [
     "index.js",
     "src"
-  ]
+  ],
+  "devDependencies": {
+    "eslint": "^8.9.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.4"
+  }
 }
