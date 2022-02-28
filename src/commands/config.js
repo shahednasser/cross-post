@@ -4,7 +4,7 @@ const inquirer = require('inquirer');
 const Conf = require('conf');
 const { default: axios } = require('axios');
 const {
-  isPlatformAllowed, displayError, platformNotAllowedMessage,
+  displayError,
   displayInfo, displaySuccess, imagePlatform,
 } = require('../utils');
 
@@ -13,14 +13,6 @@ const {
  * @param {string} name Name of configuration
  */
 function config(name) {
-  // check if platform is allowed
-  if (!isPlatformAllowed(name, true)) {
-    console.error(
-      displayError(platformNotAllowedMessage),
-    );
-    return;
-  }
-
   const configstore = new Conf();
 
   switch (name) {
@@ -192,6 +184,28 @@ function config(name) {
 
           // store api key
           configstore.set(name, value.imageSelector);
+
+          console.log(displaySuccess('Configuration saved successfully'));
+        })
+        .catch((err) => {
+          console.error(err);
+          console.error(displayError('An error occurred, please try again later.'));
+        });
+      break;
+    case 'titleSelector':
+      inquirer.prompt([
+        {
+          name: 'titleSelector',
+          message: displayInfo('Enter default title selector'),
+        },
+      ])
+        .then((value) => {
+          if (!value.hasOwnProperty('titleSelector')) {
+            console.error(displayError('Title selector is required'));
+          }
+
+          // store api key
+          configstore.set(name, value.titleSelector);
 
           console.log(displaySuccess('Configuration saved successfully'));
         })

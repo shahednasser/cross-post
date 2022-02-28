@@ -126,7 +126,7 @@ function postToPlatforms(title, markdown, url, image, p) {
  */
 async function run(url, options) {
   let {
-    title, selector, imageSelector,
+    title, selector, imageSelector, titleSelector,
   } = options;
 
   const {
@@ -214,10 +214,20 @@ async function run(url, options) {
     }
     // check if title is set in the command line arguments
     if (!title) {
-      // get title of article
-      title = search('title', articleNode);
+      if (!titleSelector) {
+        titleSelector = configstore.get('titleSelector');
+      }
+
+      if (titleSelector) {
+        title = dom.window.document.querySelector(titleSelector).textContent;
+      }
+
       if (!title) {
-        title = '';
+        // get title of article
+        title = search('title', articleNode);
+        if (!title) {
+          title = '';
+        }
       }
     }
     let image = null;
@@ -256,8 +266,6 @@ async function run(url, options) {
         }
       }
     }
-
-    console.log(image);
 
     postToPlatforms(title, markdown, local ? '' : url, image, p);
   } else {

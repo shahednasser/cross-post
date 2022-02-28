@@ -1,5 +1,7 @@
 # Cross Post
 
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](./LICENSE) [![npm version](https://badge.fury.io/js/sbuttons.svg)](https://badge.fury.io/js/sbuttons)
+
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/shahednasser)
 
 Easily cross post your article on dev.to, Hashnode and Medium from your terminal.
@@ -17,6 +19,7 @@ Easily cross post your article on dev.to, Hashnode and Medium from your terminal
     - [Cross Posting Local Markdown Files](#cross-posting-local-markdown-files)
   - [Selector Configuration](#selector-configuration)
   - [Image Selector Configuration](#image-selector-configuration)
+  - [Title Selector Configuration](#title-selector-configuration)
   - [Uploading Data URI Article Images](#uploading-data-uri-article-images)
     - [Using a Cloudinary account](#using-a-cloudinary-account)
     - [Pass Image URL](#pass-image-url)
@@ -50,7 +53,7 @@ There are two ways to install this package on a MacOS with M1 chip:
 
 You might also need to add the following to `~/.zshrc`:
 
-```
+```bash
 export PKG_CONFIG_PATH="/opt/homebrew/Cellar:/opt/homebrew/lib/pkgconfig:/opt/homebrew/share/pkgconfig"
 ```
 
@@ -67,7 +70,7 @@ Here's a guide on how to do this for each of the platforms:
 ### dev.to
 
 1. After logging into your account on dev.to, click on your profile image and then click on Settings
-   
+
    ![Settings](./assets/dev-1.png)
 
 2. Then, click on the Accounts tab in the sidebar
@@ -75,12 +78,12 @@ Here's a guide on how to do this for each of the platforms:
     ![Accounts](./assets/dev-2.png)
 
 3. Scroll down to the "DEV Community API Keys" section. You need to generate a new key. Enter "Cross Post" in the description text box or any name you want then click "Generate API key"
-   
+
    ![Generate API Key](./assets/dev-3.png)
 
    Copy the generated API key, then in your terminal:
 
-   ```
+   ```bash
    cross-post config dev
    ```
 
@@ -89,7 +92,7 @@ Here's a guide on how to do this for each of the platforms:
 ### Hashnode
 
 1. After logging into your account on Hashnode, click on your profile image and then click on "Account Settings"
-   
+
    ![Settings](./assets/Hashnode-1.png)
 
 2. In the sidebar click on "Developer"
@@ -102,7 +105,7 @@ Here's a guide on how to do this for each of the platforms:
 
 4. Run the following in your terminal:
 
-    ```
+    ```bash
     cross-post config hashnode
     ```
 
@@ -115,16 +118,16 @@ Here's a guide on how to do this for each of the platforms:
     ![Settings](./assets/Medium-1.png)
 
 2. Then click on "Integration Tokens" in the sidebar
-   
+
    ![Integration Tokens](./assets/Medium-2.png)
 
 3. You have to enter description of the token then click "Get integration token" and copy the generated token.
-   
+
    ![Generate token](./assets/Medium-3.png)
 
 4. In your terminal run:
 
-    ```
+    ```bash
     cross-post config medium
     ```
 
@@ -134,7 +137,7 @@ Here's a guide on how to do this for each of the platforms:
 
 To cross post your articles, you will use the following command:
 
-```
+```bash
 cross-post run <url> [options]
 ```
 
@@ -142,16 +145,17 @@ Where `url` is the URL of your article that you want to cross post. `options` ca
 
 1. `-p, --platforms [platforms...]` The platform(s) you want to post the article on. By default if this option is not included, it will be posted on all the platforms. An example of its usage:
 
-```bash
-cross-post run <url> -p dev hashnode
-```
+    ```bash
+    cross-post run <url> -p dev hashnode
+    ```
 
 2. `-t, --title [title]` The title by default will be taken from the URL you supplied, however, if you want to use a different title you can supply it in this option.
-3. `-s, --selector [selector]` by default, the `article` selector will be used to find your article in the URL you pass as an argument. However, if you need a different selector to be used to find the article, you can pass it here.
+3. `-s, --selector [selector]` by default, the `selector` config value or the `article` selector will be used to find your article in the URL you pass as an argument. However, if you need a different selector to be used to find the article, you can pass it here.
 4. `-pu, --public` by default, the article will be posted as a draft (or hidden for hashnode due to the limitations of the Hashnode API). You can pass this option to post it publicly.
 5. `-i, --ignore-image` this will ignore uploading an image with the article. This helps avoid errors when an image cannot be fetched.
-6. `-is, --image-selector [imageSelector]` this will select the image from the page on the selector you provide, instead of the first image inside the article. This option overrides the default image selector in the configurations.
+6. `-is, --image-selector [imageSelector]` this will select the image from the page based on the selector you provide, instead of the first image inside the article. This option overrides the default image selector in the configurations.
 7. `-iu, --image-url [imageUrl]` this will use the image URL you provide as a value of the option and will not look for any image inside the article.
+8. `-ts, --title-selector [titleSelector]` this will select the title from the page based on the selector you provide, instead of the first heading inside the article. This option overrides the default title selector in the configurations.
 
 This command will find the HTML element in the URL page you pass as an argument and if found, it will extract the title (if no title is passed in the arguments) and cover image.
 
@@ -186,6 +190,16 @@ cross-post config imageSelector
 ```
 
 Then, you'll be prompted to enter the image selector you want. After you set the default image selector, all subsequent `run` commands will use the same selector unless you override it using the option `--image-selector`.
+
+#### Title Selector Configuration
+
+If you need this tool to always use the same selector for the title, you can set the default title selector in the configuration using the following command:
+
+```bash
+cross-post config titleSelector
+```
+
+Then, you'll be prompted to enter the title selector you want. After you set the default title selector, all subsequent `run` commands will use the same selector unless you override it using the option `--title-selector`.
 
 #### Uploading Data URI Article Images
 
