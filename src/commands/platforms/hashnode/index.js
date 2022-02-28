@@ -48,7 +48,6 @@ function postToHashnode(
     },
   })
     .then((res) => {
-      console.log(res.data.data.createPublicationStory);
       if (res.data.errors) {
         throw new Error(`Error occured while cross posting to Hashnode: ${res.data.errors[0].message}`);
       } else {
