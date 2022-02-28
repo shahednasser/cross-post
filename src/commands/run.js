@@ -69,11 +69,14 @@ function handleError(err) {
 
 /**
  * If the number of platforms posted on is complete stop the loading
+ * @param {boolean} success whether it was successful or not
  */
-function checkIfShouldStopLoading() {
+function checkIfShouldStopLoading(success) {
   if (platformsPosted === chosenPlatforms.length) {
     loading.stop();
-    process.exit();
+    if (success) {
+      process.exit();
+    }
   }
 }
 
@@ -89,7 +92,7 @@ function afterPost({
     );
   }
   platformsPosted += 1;
-  checkIfShouldStopLoading();
+  checkIfShouldStopLoading(success);
 }
 
 function postToPlatforms(title, markdown, url, image, p) {
@@ -187,7 +190,11 @@ async function run(url, options) {
       articleContent = marked.parse(markdown);
     } else {
       // publish from the web
-      articleContent = (await got(url, { rejectUnauthorized: false })).body;
+      articleContent = (await got(url, {
+        https: {
+          rejectUnauthorized: false,
+        },
+      })).body;
     }
   } catch (e) {
     handleError(e);
@@ -242,9 +249,15 @@ async function run(url, options) {
         if (image && isDataURL(image)) {
           const res = await uploadToCloudinary(image);
           image = res.url;
+        } else if (image.indexOf('/') === 0 && !local) {
+          // get domain name of url and prepend it to the image URL
+          const urlObject = new URL(url);
+          image = `${urlObject.protocol}//${urlObject.hostname}${image}`;
         }
       }
     }
+
+    console.log(image);
 
     postToPlatforms(title, markdown, local ? '' : url, image, p);
   } else {
