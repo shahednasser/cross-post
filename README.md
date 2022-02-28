@@ -182,7 +182,7 @@ Then, you'll be prompted to enter the selector you want. After you set the defau
 If you need this tool to always use the same selector for the image, you can set the default image selector in the configuration using the following command:
 
 ```bash
-cross-post config image-selector
+cross-post config imageSelector
 ```
 
 Then, you'll be prompted to enter the image selector you want. After you set the default image selector, all subsequent `run` commands will use the same selector unless you override it using the option `--image-selector`.
