@@ -210,7 +210,7 @@ async function run(url, options) {
     // if article element found, get its HTML content
     const html = articleNode.innerHTML;
     if (!markdown.length && html) {
-      markdown = turndownService.turndown(html);
+      markdown = turndownService.remove('style').turndown(html);
     }
     // check if title is set in the command line arguments
     if (!title) {
