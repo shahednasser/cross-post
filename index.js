@@ -32,6 +32,7 @@ program
   .command('cloudinary', 'configure for cloudinary platform')
   .command('imageSelector', 'set article hero image selector CSS rule')
   .command('titleSelector', 'set article title selector CSS rule')
-  .command('selector', 'set article selector CSS rule (for articles retrieved from URL)');
+  .command('selector', 'set article selector CSS rule (for articles retrieved from URL)')
+  .command('reset', 'reset configuration for a given platform(s)');
 
 program.parse();
