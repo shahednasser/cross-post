@@ -1,6 +1,5 @@
 #! /usr/bin/env node
 const { program } = require('commander');
-const config = require('./src/commands/config');
 const run = require('./src/commands/run');
 const { allowedPlatforms } = require('./src/utils');
 
@@ -24,8 +23,15 @@ program
   .action(run);
 
 program
-  .command('config <platform>')
+  .command('config')
   .description(`Add configuration for a platform or other options. Allowed values are: ${allowedPlatforms.join(', ')}`)
-  .action(config);
+  .executableDir('./src/commands/config')
+  .command('dev', 'configure for dev.to platform')
+  .command('medium', 'configure for medium.com platform')
+  .command('hashnode', 'configure for hashnode.com platform')
+  .command('cloudinary', 'configure for cloudinary platform')
+  .command('imageSelector', 'set article hero image selector CSS rule')
+  .command('titleSelector', 'set article title selector CSS rule')
+  .command('selector', 'set article selector CSS rule (for articles retrieved from URL)');
 
 program.parse();

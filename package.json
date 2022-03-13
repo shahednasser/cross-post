@@ -22,7 +22,7 @@
     "chalk": "^4.1.0",
     "cloudinary": "^1.28.1",
     "clui": "^0.3.6",
-    "commander": "^7.2.0",
+    "commander": "^9.0.0",
     "conf": "^9.0.2",
     "form-data": "^4.0.0",
     "got": "^11.8.3",
