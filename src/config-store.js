@@ -36,6 +36,23 @@ const CONFIG_SCHEMA = {
       },
     },
   },
+  cloudinary: {
+    type: 'object',
+    properties: {
+      cloud_name: {
+        type: 'string',
+        default: '',
+      },
+      api_key: {
+        type: 'string',
+        default: '',
+      },
+      api_secret: {
+        type: 'string',
+        default: '',
+      },
+    },
+  },
   imageSelector: {
     type: 'string',
     default: '',
@@ -60,6 +77,11 @@ const CONFIG_DEFAULTS = {
   medium: {
     integrationToken: '',
     authorId: '',
+  },
+  cloudinary: {
+    cloud_name: '',
+    api_key: '',
+    api_secret: '',
   },
   imageSelector: '',
   titleSelector: '',
