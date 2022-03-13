@@ -7,6 +7,7 @@ reset.name('reset')
   .executableDir('./reset')
   .command('dev', 'reset configuration for dev.to')
   .command('medium', 'reset configuration for medium.com')
-  .command('hashnode', 'reset configuration for hashnode.com');
+  .command('hashnode', 'reset configuration for hashnode.com')
+  .command('all', 'reset all *non-platform* configuration', { isDefault: true });
 
 reset.parse();
