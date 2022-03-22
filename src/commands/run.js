@@ -11,7 +11,9 @@ const { JSDOM } = jsdom;
 const TurndownService = require('turndown');
 const CLI = require('clui');
 
-const turndownService = new TurndownService();
+const turndownService = new TurndownService({
+  codeBlockStyle: 'fenced',
+});
 const { Spinner } = CLI;
 const {
   allowedPlatforms,
