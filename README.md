@@ -24,6 +24,7 @@ Easily cross post your article on dev.to, Hashnode and Medium from your terminal
     - [Using a Cloudinary account](#using-a-cloudinary-account)
     - [Pass Image URL](#pass-image-url)
     - [Post Article Without Image](#post-article-without-image)
+  - [Reset Configuration](#reset-configuration-values)
 - [License](#license)
 
 ## Installation
@@ -87,7 +88,7 @@ Here's a guide on how to do this for each of the platforms:
    cross-post config dev
    ```
 
-   You'll be prompted to enter the API key. Paste the API key you copied earlier and hit enter. The API key will be saved. 
+   You'll be prompted to enter the API key. Paste the API key you copied earlier and hit enter. The API key will be saved.
 
 ### Hashnode
 
@@ -224,6 +225,29 @@ You can pass an image URL as an option to `cross-post run` using `--image-url`.
 ##### Post Article Without Image
 
 You can pass the option `--ignore-image` to `cross-post run` and the article will be published without an image.
+
+##### Reset Configuration Values
+
+you can reset configuration values for each platform like this
+
+```cross-post config reset <platform name>```
+
+for example,
+```cross-post config reset dev```
+will reset all configuration values for dev.to platform
+
+All available reset commands are
+
+```markdown
+Commands:
+  dev             reset configuration for dev.to
+  medium          reset configuration for medium.com
+  hashnode        reset configuration for hashnode.com
+  cloudinary      reset configuration for cloudinary
+  all             reset all *non-platform* configuration
+```
+
+The command `cross-post config reset all` or simply, `cross-post config reset` will reset every configuration value except the platform configuration values.
 
 ---
 
