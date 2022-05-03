@@ -226,14 +226,20 @@ You can pass an image URL as an option to `cross-post run` using `--image-url`.
 
 You can pass the option `--ignore-image` to `cross-post run` and the article will be published without an image.
 
-##### Reset Configuration Values
+#### Reset Configuration Values
 
 you can reset configuration values for each platform like this
 
-```cross-post config reset <platform name>```
+```bash
+cross-post config reset <platform name>
+```
 
 for example,
-```cross-post config reset dev```
+
+```bash
+cross-post config reset dev
+```
+
 will reset all configuration values for dev.to platform
 
 All available reset commands are
