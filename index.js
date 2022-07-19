@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+const path = require('path');
 const { program } = require('commander');
 const run = require('./src/commands/run');
 const { allowedPlatforms } = require('./src/utils');
@@ -25,7 +26,7 @@ program
 program
   .command('config')
   .description(`Add configuration for a platform or other options. Allowed values are: ${allowedPlatforms.join(', ')}`)
-  .executableDir('./src/commands/config')
+  .executableDir(path.join(__dirname, './src/commands/config'))
   .command('dev', 'configure for dev.to platform')
   .command('medium', 'configure for medium.com platform')
   .command('hashnode', 'configure for hashnode.com platform')
