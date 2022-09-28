@@ -1,6 +1,6 @@
 # Cross Post
 
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](./LICENSE) [![npm version](https://badge.fury.io/js/sbuttons.svg)](https://badge.fury.io/js/sbuttons)
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](./LICENSE) [![npm version](https://badge.fury.io/js/cross-post-blog.svg)](https://badge.fury.io/js/cross-post-blog)
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/shahednasser)
 
