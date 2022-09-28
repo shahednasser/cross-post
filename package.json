@@ -1,6 +1,6 @@
 {
   "name": "cross-post-blog",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Cross post a blog to multiple websites",
   "main": "index.js",
   "scripts": {
