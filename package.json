@@ -26,11 +26,13 @@
     "conf": "^9.0.2",
     "form-data": "^4.0.0",
     "got": "^11.8.3",
+    "htmlparser2": "^8.0.1",
     "image-data-uri": "^2.0.1",
     "inquirer": "^8.2.0",
     "jsdom": "^16.5.1",
     "marked": "^4.0.12",
-    "turndown": "^7.1.1"
+    "turndown": "^7.1.1",
+    "url": "^0.11.0"
   },
   "bin": {
     "cross-post": "index.js"
