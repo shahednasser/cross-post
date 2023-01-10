@@ -4,6 +4,8 @@ const process = require('process');
 const Conf = require('conf');
 const got = require('got');
 const jsdom = require('jsdom');
+const htmlparser2 = require('htmlparser2');
+const { URLSearchParams } = require('url');
 const { marked } = require('marked');
 
 const { JSDOM } = jsdom;
@@ -58,6 +60,33 @@ function search(type, node) {
   }
 
   return null;
+}
+
+/**
+ * 
+ * @param {*} url the string that has provided by the user
+ * @returns the url of the first image of the hashnode article
+ */
+async function getImageForHashnode(url) {
+  try {
+    const response = await got(url);
+    let count = 0, imageUrl;
+    const parser = new htmlparser2.Parser({
+      onopentag: function(name, attribs) {
+        if (name === 'img' && attribs.src && attribs.src.includes('/_next/image')) {
+          count += 1;
+          if (count === 2) {
+            imageUrl = attribs.src;
+          }
+        }
+      },
+    });
+    parser.write(response.body);
+    parser.end();
+    return imageUrl;
+  } catch (error) {
+    //pass
+  }
 }
 
 /**
@@ -254,7 +283,14 @@ async function run(url, options) {
               image = image.getAttribute('src');
             }
           } else {
-            image = search('image', articleNode);
+            if (url.includes("hashnode")) {
+              await getImageForHashnode(url).then((img) => {
+                const params = new URLSearchParams(img.split('?')[1]);
+                image = params.get('url');
+              });
+            }else{
+              image = search('image')
+            }
           }
         }
         // check if image is dataurl
