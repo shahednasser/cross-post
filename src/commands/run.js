@@ -268,6 +268,7 @@ async function run(url, options) {
         image = imageUrl;
       } else {
         // Get cover image of the article
+        imageSelector = imageSelector || configstore.get('imageSelector');
         if (imageSelector) {
           // get image using selector specified
           image = dom.window.document.querySelector(imageSelector);
@@ -276,31 +277,25 @@ async function run(url, options) {
           }
         } else {
           // check if there's a default image selector in config
-          imageSelector = configstore.get('imageSelector');
-          if (imageSelector) {
-            image = dom.window.document.querySelector(imageSelector);
-            if (image) {
-              image = image.getAttribute('src');
-            }
-          } else {
-            if (url.includes("hashnode")) {
-              await getImageForHashnode(url).then((img) => {
-                const params = new URLSearchParams(img.split('?')[1]);
-                image = params.get('url');
-              });
-            }else{
-              image = search('image')
-            }
+          if (url.includes("hashnode")) {
+            await getImageForHashnode(url).then((img) => {
+              const params = new URLSearchParams(img.split('?')[1]);
+              image = params.get('url');
+            });
+          } else{
+            image = search('image', articleNode);
           }
         }
-        // check if image is dataurl
-        if (image && isDataURL(image)) {
-          const res = await uploadToCloudinary(image);
-          image = res.url;
-        } else if (image.indexOf('/') === 0 && !local) {
-          // get domain name of url and prepend it to the image URL
-          const urlObject = new URL(url);
-          image = `${urlObject.protocol}//${urlObject.hostname}${image}`;
+        if (image) {
+          // check if image is dataurl
+          if (isDataURL(image)) {
+            const res = await uploadToCloudinary(image);
+            image = res.url;
+          } else if (image.indexOf('/') === 0 && !local) {
+            // get domain name of url and prepend it to the image URL
+            const urlObject = new URL(url);
+            image = `${urlObject.protocol}//${urlObject.hostname}${image}`;
+          }
         }
       }
     }
