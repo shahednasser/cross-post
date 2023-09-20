@@ -14,5 +14,6 @@ module.exports = {
     'no-console': 'off',
     'default-case': 'off',
     'no-prototype-builtins': 'off',
+    'linebreak-style': 0,
   },
 };
