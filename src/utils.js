@@ -160,7 +160,6 @@ const formatMarkdownImages = (markdown, element, url) => {
   const prefixUrl = (URL) => enforceHTTPS(!URL.startsWith('http://') && !URL.startsWith('https://') ? baseUrl + URL : URL);
 
   const imagesSrc = Array.from(element.querySelectorAll('img, picture')).map((HTMLImage) => {
-    // console.log(HTMLImage.outerHTML,`\n\n\n`);
     const { src, tagName } = HTMLImage || {};
 
     if (tagName.toLowerCase() === 'img') return src ? prefixUrl(src) : null;
