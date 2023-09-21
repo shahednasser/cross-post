@@ -26,6 +26,7 @@ function postToHashnode(
     input: {
       title,
       contentMarkdown,
+      isPartOfPublication: { publicationId: configData.publicationId },
       tags: [],
     },
     publicationId: configData.publicationId,
