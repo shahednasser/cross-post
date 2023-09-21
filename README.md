@@ -167,7 +167,8 @@ Starting from version 1.2.3, you can now post local markdown files to the platfo
 For example:
 
 ```bash
-cross-post run /path/to/test.md -l
+# canonicalUrl is optional 
+cross-post run /path/to/test.md -l <canonicalUrl> 
 ```
 
 You can also use any of the previous options mentioned.
