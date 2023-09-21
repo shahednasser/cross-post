@@ -157,11 +157,23 @@ const formatMarkdownImages = (markdown, element, url) => {
 
   const baseUrl = formattedUrl.toString();
 
-  const imagesSrc = Array.from(element.getElementsByTagName('img')).map((HTMLImage) => {
-    const { src } = HTMLImage;
-    const newSrc = !src.startsWith('http://') && !src.startsWith('https://') ? baseUrl + src : src;
-    return enforceHTTPS(newSrc);
-  });
+  const prefixUrl = (URL) => enforceHTTPS(!URL.startsWith('http://') && !URL.startsWith('https://') ? baseUrl + URL : URL);
+
+  const imagesSrc = Array.from(element.querySelectorAll('img, picture')).map((HTMLImage) => {
+    // console.log(HTMLImage.outerHTML,`\n\n\n`);
+    const { src, tagName } = HTMLImage || {};
+
+    if (tagName.toLowerCase() === 'img') return src ? prefixUrl(src) : null;
+    if (tagName.toLowerCase() === 'picture') {
+      const { srcset } = HTMLImage.querySelector('source') || {};
+      const srcsetItems = srcset.split(',');
+      if (srcset) return prefixUrl(srcsetItems[srcsetItems.length - 1].trim().split(' ')[0]);
+    }
+    return null;
+  }).filter(Boolean);
+
+  if (url.includes('medium.com')) { imagesSrc.shift(); } // first image is always the profile image
+
   const GRAB_IMAGES_MARKDOWN_REGEX = /!\[(.*?)]\((.*?)\)/g;
   return markdown.replace(GRAB_IMAGES_MARKDOWN_REGEX, (match, p1, p2) => {
     const newUrl = imagesSrc.shift() || p2;
