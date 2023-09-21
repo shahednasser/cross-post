@@ -292,11 +292,15 @@ async function run(url, options) {
       }
     }
     // create links for images in files
-    const articleDOM = local && await getRemoteArticleDOM(local);
-    const mainElement = local && findMainContentElements(articleDOM.window.document.body);
-    markdown = local ? formatMarkdownImages(markdown, mainElement, local) : markdown;
+    const isLocalAPath = typeof local === 'string';
 
-    postToPlatforms(title, markdown, local || url, image, p);
+    const articleDOM = isLocalAPath && await getRemoteArticleDOM(local);
+    const mainElement = isLocalAPath && findMainContentElements(articleDOM.window.document.body);
+    markdown = isLocalAPath ? formatMarkdownImages(markdown, mainElement, local) : markdown;
+    const newURL = local ? '' : url;
+    const canonicalURL = isLocalAPath ? local : newURL;
+
+    postToPlatforms(title, markdown, canonicalURL, image, p);
   } else {
     handleError('No articles found in the URL.');
   }
