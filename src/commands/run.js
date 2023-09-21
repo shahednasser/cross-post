@@ -1,14 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const process = require('process');
 const Conf = require('conf');
 const got = require('got');
-const jsdom = require('jsdom');
+const { JSDOM } = require('jsdom');
 const htmlparser2 = require('htmlparser2');
 const { URLSearchParams } = require('url');
 const { marked } = require('marked');
-
-const { JSDOM } = jsdom;
 
 const TurndownService = require('turndown');
 const CLI = require('clui');
@@ -23,7 +20,7 @@ const {
   displaySuccess,
   isPlatformAllowed,
   platformNotAllowedMessage,
-  isDataURL,
+  isDataURL, getRemoteArticleDOM, findMainContentElements, formatMarkdownImages,
 } = require('../utils');
 const postToDev = require('./platforms/dev');
 const postToHashnode = require('./platforms/hashnode');
@@ -63,30 +60,27 @@ function search(type, node) {
 }
 
 /**
- * 
+ *
  * @param {*} url the string that has provided by the user
- * @returns 
+ * @returns
  */
 async function getImageForHashnode(url) {
-  try {
-    const response = await got(url);
-    let count = 0, imageUrl;
-    const parser = new htmlparser2.Parser({
-      onopentag: function(name, attribs) {
-        if (name === 'img' && attribs.src && attribs.src.includes('/_next/image')) {
-          count += 1;
-          if (count === 2) {
-            imageUrl = attribs.src;
-          }
+  const response = await got(url);
+  let count = 0;
+  let imageUrl;
+  const parser = new htmlparser2.Parser({
+    onopentag(name, attribs) {
+      if (name === 'img' && attribs.src && attribs.src.includes('/_next/image')) {
+        count += 1;
+        if (count === 2) {
+          imageUrl = attribs.src;
         }
-      },
-    });
-    parser.write(response.body);
-    parser.end();
-    return imageUrl;
-  } catch (error) {
-    //pass
-  }
+      }
+    },
+  });
+  parser.write(response.body);
+  parser.end();
+  return imageUrl;
 }
 
 /**
@@ -153,7 +147,7 @@ function postToPlatforms(title, markdown, url, image, p) {
 /**
  *
  * @param {string} url URL of the blog post
- * @param {object} param1 The parameters from the command line
+ * @param {object} options The parameters from the command line
  */
 async function run(url, options) {
   let {
@@ -183,12 +177,7 @@ async function run(url, options) {
   }
 
   // check if configurations exist for the platforms
-  const errorPlatform = chosenPlatforms.find((platform) => {
-    if (!configstore.get(platform)) {
-      return true;
-    }
-    return false;
-  });
+  const errorPlatform = chosenPlatforms.find((platform) => !configstore.get(platform));
 
   if (errorPlatform) {
     console.error(
@@ -282,18 +271,16 @@ async function run(url, options) {
             if (image) {
               image = image.getAttribute('src');
             }
+          } else if (url.includes('hashnode')) {
+            await getImageForHashnode(url).then((img) => {
+              const params = new URLSearchParams(img.split('?')[1]);
+              image = params.get('url');
+            });
           } else {
-            if (url.includes("hashnode")) {
-              await getImageForHashnode(url).then((img) => {
-                const params = new URLSearchParams(img.split('?')[1]);
-                image = params.get('url');
-              });
-            }else{
-              image = search('image')
-            }
+            image = search('image', articleNode);
           }
         }
-        // check if image is dataurl
+        // check if image is data-url
         if (image && isDataURL(image)) {
           const res = await uploadToCloudinary(image);
           image = res.url;
@@ -304,8 +291,12 @@ async function run(url, options) {
         }
       }
     }
+    // create links for images in files
+    const articleDOM = local && await getRemoteArticleDOM(local);
+    const mainElement = local && findMainContentElements(articleDOM.window.document.body);
+    markdown = local ? formatMarkdownImages(markdown, mainElement, local) : markdown;
 
-    postToPlatforms(title, markdown, local ? '' : url, image, p);
+    postToPlatforms(title, markdown, local || url, image, p);
   } else {
     handleError('No articles found in the URL.');
   }
