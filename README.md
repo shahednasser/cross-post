@@ -7,9 +7,6 @@
 Easily cross post your article on dev.to, Hashnode and Medium from your terminal.
 
 - [Installation](#installation)
-  - [Installation of MacOS with M1 chip](#installation-of-macos-with-m1-chip)
-    - [Method 1: Rosetta Terminal](#method-1-rosetta-terminal)
-    - [Method 2](#method-2)
 - [Usage](#usage)
   - [Set Configuration](#set-configuration)
     - [dev.to](#devto)
@@ -28,35 +25,12 @@ Easily cross post your article on dev.to, Hashnode and Medium from your terminal
 - [License](#license)
 
 ## Installation
-
 In your terminal:
-
 ```bash
 npm i -g cross-post-blog
 ```
 
-### Installation of MacOS with M1 chip
-
-For Apple M1, it's best to have Node v14.
-
-There are two ways to install this package on a MacOS with M1 chip:
-
-#### Method 1: Rosetta Terminal
-
-1. If you don't have a Rosetta Terminal, go to Finder, then in the menu bar go to Go > Utilities. Duplicate "Terminal" and rename it to "Rosetta Terminal" or anything you want. Then click on the duplicate you create it and press "command + I" and choose "Open using Rosetta".
-2. Open the Rosetta Terminal you created, uninstall and then install Node again.
-3. Install this package again.
-
-#### Method 2
-
-1. In the terminal run: arch -arm64 brew install pkg-config cairo pango libpng jpeg giflib librsvg
-2. Try installing this package again.
-
-You might also need to add the following to `~/.zshrc`:
-
-```bash
-export PKG_CONFIG_PATH="/opt/homebrew/Cellar:/opt/homebrew/lib/pkgconfig:/opt/homebrew/share/pkgconfig"
-```
+*For macOS M1 see: [Installing on macOS](MACOS_M1.md)*
 
 ## Usage
 
@@ -84,7 +58,7 @@ Here's a guide on how to do this for each of the platforms:
 
    Copy the generated API key, then in your terminal:
 
-   ```bash
+```bash 
    cross-post config dev
    ```
 
@@ -130,7 +104,7 @@ Here's a guide on how to do this for each of the platforms:
 
     ```bash
     cross-post config medium
-    ```
+```
 
     Then enter the integration token you copied. A request will also be sent to Medium to get your authorId as it will be used later to post your article on Medium. Once that is done successfully, your configuration will be saved.
 
