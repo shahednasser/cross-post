@@ -171,6 +171,10 @@ For example:
 cross-post run /path/to/test.md -l <canonicalUrl> 
 ```
 
+### What is a canonical URL ?
+A canonical URL is the preferred version of a web page. It helps search engines understand which URL to index. Used to avoid duplicate content issues.
+It is used if your post is already published elsewhere but you still need more reach. So when publishing to a new vendor you would add that info so the website can point to the original poster.
+
 You can also use any of the previous options mentioned.
 
 #### Selector Configuration
