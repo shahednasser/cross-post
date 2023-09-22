@@ -9,7 +9,7 @@ program.usage('[command] [options]');
 program
   .command('run <url>')
   .description('Cross post a blog post')
-  .option('-l, --local', 'Use if the you want to directly post a local Markdown file. <url> in this case should be the path to the file')
+  .option('-l, --local [canonicalUrl]', 'For using a local Markdown file, <url> will be the path and <canonicalUrl> is optional')
   .option('-t, --title [title]', 'Title for the article')
   .option('-p, --platforms [platforms...]', `Platforms to post articles to. Allowed values are: ${allowedPlatforms.join(', ')}`)
   .option('-s, --selector [selector]', 'The selector to look for in the document in the URL supplied. By default, it will be article. '
